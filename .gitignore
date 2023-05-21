@@ -1,0 +1,12 @@
+#stuff
+*__pycache__*
+
+#folders
+temp/
+env/
+logs/
+
+#files
+.env
+script.sh
+intube.service

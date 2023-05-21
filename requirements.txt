@@ -1,0 +1,5 @@
+yt-dlp
+pymongo
+aiogram
+instaloader
+python-dotenv

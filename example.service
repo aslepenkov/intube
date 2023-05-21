@@ -1,0 +1,15 @@
+[Unit]
+Description=INTUBE BOT SH
+After=syslog.target
+
+[Service]
+Type=simple
+ExecStart=/bin/bash /home/usernanme/botname/example-service.sh
+WorkingDirectory=/home/usernanme/botname
+User=usernanme
+Group=usernanme
+Restart=always
+Type=simple
+
+[Install]
+WantedBy=sysctl.target

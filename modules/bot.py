@@ -3,13 +3,13 @@ from aiogram import Bot, types
 from aiogram.dispatcher import Dispatcher
 from aiogram.dispatcher.filters import Command
 from modules.core import process_message
+from modules.mongo import save_user, feed_stats, usage_stats, user_stats
 from config import TOKEN, START_MESSAGE, WAIT_MESSAGE
 from config import (
     WORKERS_COUNT,
     WEBHOOK_URL,
     ADMIN_USER_ID,
 )
-from mongo import save_user, feed_stats, usage_stats, user_stats
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)

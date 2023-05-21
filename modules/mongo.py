@@ -1,10 +1,9 @@
 import json
 from modules.utils import is_link
-from logger import logger
+from modules.logger import logger
 from datetime import datetime
 from collections import Counter
 from aiogram.utils.markdown import escape_md
-from pymongo.mongo_client import MongoClient
 from pymongo.mongo_client import MongoClient
 from config import (
     PRODUCTION,
@@ -20,6 +19,7 @@ mongo_db = mongo_client[MONGO_DB]
 stats_collection = mongo_db[STATS_COLLECTION]
 users_collection = mongo_db[USERS_COLLECTION]
 error_collection = mongo_db[ERROR_COLLECTION]
+
 
 def feed_stats():
     pipeline = [

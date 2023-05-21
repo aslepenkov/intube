@@ -1,11 +1,9 @@
-import os
 import asyncio
-from pathlib import Path
 from aiogram import Bot, types
 from aiogram.dispatcher import Dispatcher
 from aiogram.dispatcher.filters import Command
+from modules.core import process_message
 from config import TOKEN, START_MESSAGE, WAIT_MESSAGE
-from core import process_message
 from config import (
     WORKERS_COUNT,
     WEBHOOK_URL,

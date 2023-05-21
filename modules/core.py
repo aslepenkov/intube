@@ -3,9 +3,9 @@ import uuid
 import yt_dlp
 import shutil
 import instaloader
-from logger import logger
+from modules.logger import logger
 from aiogram import types
-from mongo import save_error, save_stats
+from modules.mongo import save_error, save_stats
 from modules.utils import reply_video, reply_photo
 from config import (
     SUPPORTED_URLS,

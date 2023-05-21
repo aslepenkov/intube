@@ -85,7 +85,7 @@ async def on_startup(dispatcher):
     if ADMIN_USER_ID:
         await bot.send_message(
             f"{ADMIN_USER_ID}",
-            f"(●'◡'●) GIMME COOKIE",
+            f"(●'◡'●) GIMME COOKIE!",
         )
 
 

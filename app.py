@@ -1,7 +1,7 @@
 from modules.logger import logger
 from modules.bot import dp, on_startup, on_shutdown
-from aiogram.utils.executor import start_webhook, start_polling
 from modules.config import PRODUCTION, WEBHOOK_PATH, WEBAPP_HOST, WEBAPP_PORT
+from aiogram.utils.executor import start_webhook, start_polling
 
 if __name__ == "__main__":
     logger.info("Starting bot")

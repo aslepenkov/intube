@@ -20,6 +20,7 @@ SUPPORTED_URLS = [
     "https://instagram.com/",
     "https://www.instagram.com/",
     "https://vt.tiktok.com/",
+    "https://vm.tiktok.com/",
     "https://www.tiktok.com/",
     "https://youtu.be/",
     "https://youtube.com/",

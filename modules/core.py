@@ -77,8 +77,7 @@ async def download_video(url: str):
 
     ydl_opts = {
         "outtmpl": temp_file,
-        "format": "best[filesize<=50M][ext=mp4]",
-        #"format": "best[filesize<=50M][ext=mp4] / w[ext=mp4]",
+        "format": "best[filesize<=50M][ext=mp4]/w[ext=mp4]",
     }
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:

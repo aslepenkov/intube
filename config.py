@@ -1,6 +1,10 @@
 from dotenv import load_dotenv
 import os
 
+
+load_dotenv('.env')
+
+
 # Set before start!☜(ﾟヮﾟ☜)
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 ADMIN_USER_ID = os.getenv("ADMIN_USER_ID")
@@ -58,5 +62,3 @@ https:/vt.tiktok.com/*
 https:/twitter.com/*/status/*
 """
 
-
-load_dotenv('.env')

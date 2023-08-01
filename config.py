@@ -1,3 +1,4 @@
+from dotenv import load_dotenv
 import os
 
 # Set before start!☜(ﾟヮﾟ☜)

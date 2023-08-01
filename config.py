@@ -56,3 +56,6 @@ https:/www.youtube.com/shorts/*
 https:/vt.tiktok.com/*
 https:/twitter.com/*/status/*
 """
+
+
+load_dotenv('.env')

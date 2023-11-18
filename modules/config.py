@@ -22,6 +22,7 @@ SUPPORTED_URLS = [
     "https://twitter.com/",
     "https://instagram.com/",
     "https://www.instagram.com/",
+    "https://ddinstagram.com/",
     "https://vt.tiktok.com/",
     "https://vm.tiktok.com/",
     "https://www.tiktok.com/",
@@ -31,6 +32,7 @@ SUPPORTED_URLS = [
     "https://m.youtube.com/",
     "twitter.com/",
     "instagram.com/",
+    "ddinstagram.com/",
     "youtu.be/",
     "youtube.com/",
     "www.youtube.com/",
@@ -54,5 +56,3 @@ https:/vt.tiktok.com/*
 https:/twitter.com/*/status/*
 """
 
-
-load_dotenv('.env')

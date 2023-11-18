@@ -7,10 +7,9 @@ from modules.logger import logger
 from aiogram import types
 from modules.mongo import save_error, save_stats
 from modules.utils import reply_video, reply_photo
-from config import (
+from modules.config import (
     SUPPORTED_URLS,
     DOWNLOAD_STARTED,
-    REPLY_WITH_ERRORS,
     EX_VALID_LINK,
     INSTAGRAM_NOT_SUPPORTED_MESSAGE,
     MAX_DURATION_IN_MINUTES,
@@ -22,9 +21,8 @@ async def process_message(message: types.Message):
     url = message.text
 
     if not any(url.startswith(prefix) for prefix in SUPPORTED_URLS):
-        if REPLY_WITH_ERRORS:
-            await message.reply(EX_VALID_LINK)
-            return
+        await message.reply(EX_VALID_LINK)
+        return
 
     try:
         await message.reply(DOWNLOAD_STARTED)
@@ -34,14 +32,9 @@ async def process_message(message: types.Message):
         else:
             file = await download_video(url)
             await reply_video(message, file[0])
-            # ltyt part:
-            # file = await download_audio(url)
-            # await reply_audio(message, file)
         save_stats(message.from_user.id, url, file[1])
     except Exception as e:
-        if REPLY_WITH_ERRORS:
-            await message.reply(f"Sorry, some error. {str(e)}")
-        logger.error(f"{message.from_user.id} - {str(url)} - {str(e)}")
+        await message.reply(f"Sorry, some error. {str(e)}")
         save_error(message.from_user.id, url, str(e))
 
 

@@ -1,14 +1,15 @@
+import os
 import asyncio
 from aiogram import Bot, types
 from aiogram.dispatcher import Dispatcher
 from aiogram.dispatcher.filters import Command
 from modules.core import process_message
 from modules.mongo import save_user, feed_stats, usage_stats, user_stats
-from config import TOKEN, START_MESSAGE, WAIT_MESSAGE
-from config import (
+from modules.logger import last_logs
+from modules.config import TOKEN, START_MESSAGE, WAIT_MESSAGE
+from modules.config import (
     WORKERS_COUNT,
-    WEBHOOK_URL,
-    ADMIN_USER_ID,
+    ADMIN_USER_ID
 )
 
 bot = Bot(token=TOKEN)
@@ -61,6 +62,19 @@ async def admin(message: types.Message):
     await message.reply(stats, parse_mode="MarkdownV2")
 
 
+# show logfile last 10 lines
+@dp.message_handler(Command("log"))
+async def log(message: types.Message):
+    user_id = message.chat.id
+
+    if user_id != int(ADMIN_USER_ID):
+        await message.reply(f"(╯°□°）╯︵ ┻━┻")
+        return
+
+    formatted_lines = last_logs()
+    await message.reply(formatted_lines, parse_mode="MarkdownV2")
+
+
 # handle all text messages
 @dp.message_handler(content_types=types.ContentType.TEXT)
 async def handle_message(message: types.Message):
@@ -76,21 +90,3 @@ async def handle_message(message: types.Message):
     else:
         queue_size = message_queue.qsize() + WORKERS_COUNT
         await message.reply(WAIT_MESSAGE.format(queue_size))
-
-
-async def on_startup(dispatcher):
-    await bot.set_webhook(WEBHOOK_URL, drop_pending_updates=True)
-    if ADMIN_USER_ID:
-        await bot.send_message(
-            f"{ADMIN_USER_ID}",
-            f"(●'◡'●) GIMME COOKIE!",
-        )
-
-
-async def on_shutdown(dispatcher):
-    if ADMIN_USER_ID:
-        await bot.send_message(
-            f"{ADMIN_USER_ID}",
-            f"(._.`) on_shutdown message_queue: {message_queue} processing_now: {processing_now}",
-        )
-    await bot.delete_webhook()

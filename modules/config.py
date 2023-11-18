@@ -1,19 +1,21 @@
 from dotenv import load_dotenv
 import os
 
-# Set before start!☜(ﾟヮﾟ☜)
-TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+PRODUCTION = eval(os.getenv("PRODUCTION", False))
+
+if not PRODUCTION:
+    TOKEN = os.getenv("TELEGRAM_BOT_TOKEN_DEBUG") 
+else:
+    TOKEN = os.getenv("TELEGRAM_BOT_TOKEN_PROD") 
+
 ADMIN_USER_ID = os.getenv("ADMIN_USER_ID")
 MONGO_URL = os.getenv("MONGO_URL")
-# Set before start!☜(ﾟヮﾟ☜)
 
 STATS_COLLECTION = os.getenv("STATS_COLLECTION")
 USERS_COLLECTION = os.getenv("USERS_COLLECTION")
 ERROR_COLLECTION = os.getenv("ERROR_COLLECTION")
 MONGO_DB = os.getenv("MONGO_DB")
 
-PRODUCTION = os.getenv("PRODUCTION", False)
-REPLY_WITH_ERRORS = os.getenv("REPLY_WITH_ERRORS", True)
 MAX_DURATION_IN_MINUTES = int(os.getenv("MAX_DURATION_IN_MINUTES", 30))
 WORKERS_COUNT = int(os.getenv("WORKERS_COUNT", 2))
 SUPPORTED_URLS = [
@@ -26,20 +28,14 @@ SUPPORTED_URLS = [
     "https://youtu.be/",
     "https://youtube.com/",
     "https://www.youtube.com/",
+    "https://m.youtube.com/",
     "twitter.com/",
     "instagram.com/",
     "youtu.be/",
     "youtube.com/",
     "www.youtube.com/",
+    "m.youtube.com/",
 ]
-
-HEROKU_APP_NAME = os.getenv("HEROKU_APP_NAME")
-WEBAPP_PORT = os.getenv("PORT", default=8000)
-WEBHOOK_HOST = f"https://{HEROKU_APP_NAME}.herokuapp.com"
-WEBHOOK_PATH = f"/webhook/{TOKEN}"
-WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
-WEBAPP_HOST = "0.0.0.0"
-
 
 # Messages
 INSTAGRAM_NOT_SUPPORTED_MESSAGE = (

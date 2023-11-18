@@ -5,7 +5,7 @@ from datetime import datetime
 from collections import Counter
 from aiogram.utils.markdown import escape_md
 from pymongo.mongo_client import MongoClient
-from config import (
+from modules.config import (
     MONGO_URL,
     MONGO_DB,
     STATS_COLLECTION,
@@ -117,7 +117,7 @@ def save_stats(chat_id: int, video_url: str, data: str = ""):
         stats_collection.insert_one(stats_doc)
         logger.info(f"stats_collection {stats_doc}")
     except Exception as e:
-        logger.error(f"err stats_collection insert_one to MongoDB {str(e)}")
+        logger.error(f"error_collection insert_one to MongoDB {str(e)}")
 
 
 def save_error(chat_id: int, video_url: str, data: str = ""):
@@ -131,4 +131,4 @@ def save_error(chat_id: int, video_url: str, data: str = ""):
         logger.error(f"error_collection {error_doc}")
         error_collection.insert_one(error_doc)
     except Exception as e:
-        logger.error(f"err stats_collection insert_one to MongoDB {str(e)}")
+        logger.error(f"error_collection insert_one to MongoDB {str(e)}")

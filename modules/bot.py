@@ -11,7 +11,7 @@ from modules.config import (
     WORKERS_COUNT,
     ADMIN_USER_ID
 )
-
+from modules.utils import admin_required
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
 
@@ -27,50 +27,36 @@ async def start(message: types.Message):
 
 # show last downloaded links
 @dp.message_handler(Command("feed"))
+@admin_required
 async def feed(message: types.Message):
-    user_id = message.chat.id
-
-    if user_id != int(ADMIN_USER_ID):
-        await message.reply(f"(╯°□°）╯︵ ┻━┻")
-        return
+    user_id = message.from_user.id
     stats = feed_stats()
     await message.reply(stats, parse_mode="MarkdownV2")
 
 
 # show stats: video_downloaded - user - user id
 @dp.message_handler(Command("admin"))
+@admin_required
 async def admin(message: types.Message):
-    user_id = message.chat.id
-
-    if user_id != int(ADMIN_USER_ID):
-        await message.reply(f"(╯°□°）╯︵ ┻━┻")
-        return
+    user_id = message.from_user.id
     stats = usage_stats()
     await message.reply(stats, parse_mode="MarkdownV2")
 
 
 # show usernames
 @dp.message_handler(Command("users"))
+@admin_required
 async def admin(message: types.Message):
-    user_id = message.chat.id
-
-    if user_id != int(ADMIN_USER_ID):
-        await message.reply(f"(╯°□°）╯︵ ┻━┻")
-        return
-
+    user_id = message.from_user.id
     stats = user_stats()
     await message.reply(stats, parse_mode="MarkdownV2")
 
 
 # show logfile last 10 lines
 @dp.message_handler(Command("log"))
+@admin_required
 async def log(message: types.Message):
-    user_id = message.chat.id
-
-    if user_id != int(ADMIN_USER_ID):
-        await message.reply(f"(╯°□°）╯︵ ┻━┻")
-        return
-
+    user_id = message.from_user.id
     formatted_lines = last_logs()
     await message.reply(formatted_lines, parse_mode="MarkdownV2")
 

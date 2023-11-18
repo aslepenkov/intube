@@ -3,7 +3,10 @@ import re
 from pathlib import Path
 from pathlib import Path
 from aiogram import types
-
+from functools import wraps
+from modules.config import (
+    ADMIN_USER_ID
+)
 
 async def reply_video(message: types.Message, video_file: str, delete: bool = True):
     with open(video_file, "rb") as video:
@@ -47,3 +50,17 @@ def get_file_size_mb(file_path):
 def is_link(string):
     pattern = r"^(http|https)://[^\s/$.?#].[^\s]*$"
     return re.match(pattern, string) is not None
+
+
+def admin_required(func):
+    @wraps(func)
+    async def wrapper(message: types.Message):
+        user_id = message.from_user.id
+
+        if user_id != int(ADMIN_USER_ID):
+            await message.reply(f"(╯°□°）╯︵ ┻━┻")
+            return
+
+        return await func(message)
+
+    return wrapper

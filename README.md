@@ -1,16 +1,33 @@
-## Deploy own service in Heroku
+#RUN YOUR OWN YT/INSTA/TT videos downloader bot
 
-- Deploy mongo instance
-- [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/aslepenkov/intube)
-- config vars in heroku
+## TODO ADD used libs
+* yt-dlp
+* pymongo
+* aiogram
+* instaloader
+* python-dotenv
 
-```
-MONGODB_URI=mongodb://<USER>:<PASS>@<ENDPOINT>:<PORT>
-TELEGRAM_BOT_TOKEN = (provided by BotFather)
-ADMIN_USER_ID = (your telegram id to get some debug messages)
+## TODO ADD RELEASENOTES
 
-STATS_COLLECTION = (name collection for vids stat)
-USERS_COLLECTION = (name collection for users stat)
-ERROR_COLLECTION = (name collection for errors logs)
-MONGO_DB = (name of db)
-```
+# when updated .service file
+sudo systemctl restart intube_bot.service
+
+# other commands used
+sudo systemctl daemon-reload
+
+## status
+sudo systemctl status intube_bot.service
+
+## start 
+sudo systemctl start intube_bot.service
+
+## stop 
+sudo systemctl stop intube_bot.service
+
+## logs
+cat /var/log/syslog | grep  intube
+tac /var/log/syslog | grep  intube
+
+## concat to one file
+cat * > logs.txt
+

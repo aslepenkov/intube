@@ -1,68 +1,75 @@
+import os
 import asyncio
-from aiogram import Bot, types
-from aiogram.dispatcher import Dispatcher
-from aiogram.dispatcher.filters import Command
+from aiogram import F
+from aiogram import Dispatcher, Bot, types, Router
+from aiogram.filters import Command, CommandStart
 from modules.core import process_message
 from modules.mongo import save_user, feed_stats, usage_stats, user_stats
-from config import TOKEN, START_MESSAGE, WAIT_MESSAGE
-from config import (
-    WORKERS_COUNT,
-    WEBHOOK_URL,
-    ADMIN_USER_ID,
+from modules.logger import last_logs
+from modules.config import TOKEN, START_MESSAGE, WAIT_MESSAGE
+from modules.config import (
+    WORKERS_COUNT
 )
+from modules.utils import admin_required
 
-bot = Bot(token=TOKEN)
-dp = Dispatcher(bot)
+router = Router(name=__name__)
+dp = Dispatcher()
 
 message_queue = asyncio.Queue()
 processing_now = asyncio.Queue()
 
 
-@dp.message_handler(Command("start"))
+async def bot_starter() -> None:
+    # Initialize Bot instance with a default parse mode which will be passed to all API calls
+    bot = Bot(TOKEN)
+    # And the run events dispatching
+    await dp.start_polling(bot)
+
+@dp.message(CommandStart())
 async def start(message: types.Message):
     await message.reply(START_MESSAGE)
     save_user(message.from_user)
 
 
 # show last downloaded links
-@dp.message_handler(Command("feed"))
+@dp.message(Command("feed"))
+@admin_required
 async def feed(message: types.Message):
-    user_id = message.chat.id
-
-    if user_id != int(ADMIN_USER_ID):
-        await message.reply(f"(╯°□°）╯︵ ┻━┻")
-        return
+    user_id = message.from_user.id
     stats = feed_stats()
     await message.reply(stats, parse_mode="MarkdownV2")
 
 
 # show stats: video_downloaded - user - user id
-@dp.message_handler(Command("admin"))
+@dp.message(Command("admin"))
+@admin_required
 async def admin(message: types.Message):
-    user_id = message.chat.id
-
-    if user_id != int(ADMIN_USER_ID):
-        await message.reply(f"(╯°□°）╯︵ ┻━┻")
-        return
+    user_id = message.from_user.id
     stats = usage_stats()
     await message.reply(stats, parse_mode="MarkdownV2")
 
 
 # show usernames
-@dp.message_handler(Command("users"))
+@dp.message(Command("users"))
+@admin_required
 async def admin(message: types.Message):
-    user_id = message.chat.id
-
-    if user_id != int(ADMIN_USER_ID):
-        await message.reply(f"(╯°□°）╯︵ ┻━┻")
-        return
-
+    user_id = message.from_user.id
     stats = user_stats()
     await message.reply(stats, parse_mode="MarkdownV2")
 
 
+# show logfile last 10 lines
+@dp.message(Command("log"))
+@admin_required
+async def log(message: types.Message):
+    user_id = message.from_user.id
+    formatted_lines = last_logs()
+    await message.reply(formatted_lines, parse_mode="MarkdownV2")
+
+
 # handle all text messages
-@dp.message_handler(content_types=types.ContentType.TEXT)
+@dp.message()
+@router.message(F.content_type.in_({'text'}))
 async def handle_message(message: types.Message):
     await message_queue.put(message)
 
@@ -76,21 +83,3 @@ async def handle_message(message: types.Message):
     else:
         queue_size = message_queue.qsize() + WORKERS_COUNT
         await message.reply(WAIT_MESSAGE.format(queue_size))
-
-
-async def on_startup(dispatcher):
-    await bot.set_webhook(WEBHOOK_URL, drop_pending_updates=True)
-    if ADMIN_USER_ID:
-        await bot.send_message(
-            f"{ADMIN_USER_ID}",
-            f"(●'◡'●) GIMME COOKIE!",
-        )
-
-
-async def on_shutdown(dispatcher):
-    if ADMIN_USER_ID:
-        await bot.send_message(
-            f"{ADMIN_USER_ID}",
-            f"(._.`) on_shutdown message_queue: {message_queue} processing_now: {processing_now}",
-        )
-    await bot.delete_webhook()

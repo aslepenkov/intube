@@ -90,22 +90,15 @@ async def download_video(url: str):
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=False)  # Only fetch metadata
-        duration = 
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        int(info.get("duration", 0))
-        filesize = int( info.get("filesize", 0))
+        dur = info.get("duration", 0)
+        duration = int(dur) if dur.isdigit() else 0 
+
+        fsize = info.get("filesize", 0)
+        filesize = int(fsize) if fsize.isdigit() else 0 
+
         media_title = info.get("title", "untitled")
 
-
-        if duration > 15 * 60 or filesize > MAX_SIZE_IN_MBYTES *1024*1024:
+        if duration / 60 > 15 or filesize *1024*1024 > MAX_SIZE_IN_MBYTES:
             is_audio = True
             temp_file = f"{temp_dir}/{temp_file_name}.mp3"
             ydl_audio_opts = {

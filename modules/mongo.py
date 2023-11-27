@@ -4,6 +4,7 @@ from modules.logger import logger
 from datetime import datetime
 from collections import Counter
 from pymongo.mongo_client import MongoClient
+from modules.utils import escape_md
 from modules.config import (
     MONGO_URL,
     MONGO_DB,

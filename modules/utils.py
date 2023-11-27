@@ -5,46 +5,41 @@ from pathlib import Path
 from aiogram import types
 from functools import wraps
 from modules.config import ADMIN_USER_ID
-
+from aiogram.types import FSInputFile
 
 async def reply_text(message: types.Message, message_text: str):
     await message.reply(message_text)
 
 
-async def reply_video(message: types.Message, video_file: str, delete: bool = True):
-    with open(video_file, "rb") as video:
-        await message.reply_video(video)
+async def reply_video_new(message: types.Message, video_file: str, delete: bool = True):
+    await message.reply_video(FSInputFile(video_file))
 
     if delete:
         remove_file_safe(video_file)
 
 
 async def reply_photo(message: types.Message, file: str, delete: bool = True):
-    with open(file, "rb") as photo:
-        await message.reply_photo(photo)
+    await message.reply_photo(FSInputFile(file))
 
     if delete:
         remove_file_safe(file)
 
 
 async def reply_audio(message: types.Message, audio_file: str):
-    with open(audio_file, "rb") as audio:
-        await message.reply_audio(audio)
+    await message.reply_audio(FSInputFile(audio_file))
 
     remove_file_safe(audio_file)
 
 
 async def reply_voice(message: types.Message, audio_file: str, title: str):
-    with open(audio_file, "rb") as audio:
-        await message.reply(title)
-        await message.reply_voice(audio)
+    await message.reply(title)
+    await message.reply_voice(FSInputFile(audio_file))
 
     remove_file_safe(audio_file)
 
 
 async def reply_file(message: types.Message, file: str):
-    with open(file, "rb") as f:
-        await message.reply_document(f)
+    await message.reply_document (FSInputFile(file))
 
     remove_file_safe(file)
 
@@ -76,9 +71,13 @@ def admin_required(func):
 
     return wrapper
 
-def escape_md(text: str) -> str:
+def escape_m1d(text: str) -> str:
     """
     Escapes markdown-sensitive characters within other markdown
     constructs.
     """
     return re.compile(r"([\\\[\]\(\)])").sub(r"\\\1", text)
+
+def escape_md(txt) -> str:
+  match_md = r'((([\.\#\(\)_*!]).+?\3[\.\#\(\)^_*!]*)*)([\.\#\(\)_*!])'
+  return re.sub(match_md, "\g<1>\\\\\g<4>", txt)

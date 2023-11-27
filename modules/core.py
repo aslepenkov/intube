@@ -6,7 +6,7 @@ import instaloader
 from modules.logger import logger
 from aiogram import types
 from modules.mongo import save_error, save_stats
-from modules.utils import reply_video, reply_voice, reply_photo, reply_text
+from modules.utils import reply_video_new, reply_voice, reply_photo, reply_text
 from modules.config import (
     SUPPORTED_URLS,
     DOWNLOAD_STARTED,
@@ -33,7 +33,7 @@ async def process_message(message: types.Message):
             url = url.replace("www.", "")
             await reply_text(message, url)
         else:
-            file = await download_video(url)
+            file = await download_video_old(url)
             if file:
                 temp_file = file[0]
                 media_title = file[1]
@@ -41,7 +41,7 @@ async def process_message(message: types.Message):
                 if is_audio:
                     await reply_voice(message, temp_file, media_title)
                 else:
-                    await reply_video(message, temp_file)
+                    await reply_video_new(message, temp_file)
                 #save_stats(message.from_user.id, url, a_media_title)
     except Exception as e:
         await message.reply(f"[v1] Sorry, some error. {str(e)}")
@@ -51,118 +51,52 @@ async def process_message(message: types.Message):
         save_stats(message.from_user.id, url, media)
 
 
-async def download_and_send_instagram(message: types.Message, url: str):
-    temp_folder_name = str(uuid.uuid4())
-    try:
-        loader = instaloader.Instaloader()
-        post = instaloader.Post.from_shortcode(loader.context, url.split("/")[-2])
-        # loader.download_pictures = False
-        loader.download_post(post, target=temp_folder_name)
+async def download_video_old(url: str):
+    temp_dir = "temp"
+    temp_file_name = str(uuid.uuid4())
+    temp_file = f"{temp_dir}/{temp_file_name}.mp4"
+    os.makedirs(temp_dir, exist_ok=True)
+    video_title = "untitled"
 
-        for filename in os.listdir(temp_folder_name):
-            file = os.path.join(temp_folder_name, filename)
-            if os.path.isfile(file) and file.lower().endswith("mp4"):
-                await reply_video(message, file, False)
-            if os.path.isfile(file) and file.lower().endswith("jpg"):
-                await reply_photo(message, file, False)
-    except Exception as e:
-        save_error(message.from_user.id, url, str(e))
-        raise Exception(INSTAGRAM_NOT_SUPPORTED_MESSAGE)
+    ydl_opts = {
+        "outtmpl": temp_file,
+        "format": "best[filesize<=50M][ext=mp4]/w[ext=mp4]",
+    }
 
-    shutil.rmtree(temp_folder_name, ignore_errors=False, onerror=None)
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(url, download=False)  # Only fetch metadata
+        duration = info.get("duration", 0)
+        video_title = info.get("title", "untitled")
 
-    return [temp_folder_name, url, False]
+        if duration / 60 < 15:
+            ydl.download([url])
+        else:
+            return await download_audio(url)
 
+    return [temp_file, video_title, False]
 
-async def download_video(url: str):
-    is_audio = False
+async def download_audio(url: str):
+    is_audio = True
     temp_dir = "temp"
     media_title = "untitled"
     temp_file_name = str(uuid.uuid4())
-    temp_file = f"{temp_dir}/{temp_file_name}.mp4"
+    temp_file = f"{temp_dir}/{temp_file_name}.mp3"
 
     os.makedirs(temp_dir, exist_ok=True)
 
     ydl_opts = {
         "outtmpl": temp_file,
-        "format": "best[filesize<=50M][ext=webp]/w[ext=mp4]",
+        "format": "wa",
     }
-
+    
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(url, download=False)  # Only fetch metadata
-        dur = info.get("duration", 0)
-        duration = int(dur) if dur.isdigit() else 0 
+      info = ydl.extract_info(url, download=False)  # Only fetch metadata
+      media_title = info.get("title", "untitled")
+      filesize = info.get("filesize", 0) / 1024 / 1024  # MBytes
 
-        fsize = info.get("filesize", 0)
-        filesize = int(fsize) if fsize.isdigit() else 0 
-
-        media_title = info.get("title", "untitled")
-
-        if duration / 60 > 15 or filesize *1024*1024 > MAX_SIZE_IN_MBYTES:
-            is_audio = True
-            temp_file = f"{temp_dir}/{temp_file_name}.mp3"
-            ydl_audio_opts = {
-                "outtmpl": temp_file,
-                "format": "wa",  # "bestaudio[ext=mp3]"
-            }
-            with yt_dlp.YoutubeDL(ydl_audio_opts) as ydla:
-                info = ydla.extract_info(url, download=False)  # Only fetch metadata
-                filesize = info.get("filesize", 0) / 1024 / 1024  # MBytes
-                media_title = info.get("title", "untitled")
-                
-                if filesize <= MAX_SIZE_IN_MBYTES:
-                    ydla.download([url])
-                else:
-                    raise Exception(EX_MAX_DURATION.format(MAX_SIZE_IN_MBYTES))
-        else:
-            ydl.download([url])
-
-    return [temp_file, media_title, is_audio]
-
-
-async def download_video_chatgpt_refactored(url: str):
-    is_audio = False
-    temp_dir = "temp"
-    media_title = "untitled"
-    temp_file_name = str(uuid.uuid4())
-    temp_file = f"{temp_dir}/{temp_file_name}"
-
-    os.makedirs(temp_dir, exist_ok=True)
-
-    def download_media(ydl_opts, file_extension):
-        nonlocal temp_file, media_title, is_audio
-        temp_file_with_ext = f"{temp_file}.{file_extension}"
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=False)
-            filesize = info.get("filesize", 0) 
-
-            if filesize:
-                filesize = filesize / 1024 / 1024  # MBytes  
-            else: 
-                filesize = 0
-
-            media_title = info.get("title", "untitled")
-
-            if filesize <= MAX_SIZE_IN_MBYTES:
-                ydl.download(url)
-            else:
-                raise Exception(f"File size exceeds {MAX_SIZE_IN_MBYTES} MB")
-
-        temp_file = temp_file_with_ext
-        is_audio = file_extension == "mp3"
-
-    video_opts = {
-        "outtmpl": temp_file + ".mp4",
-        "format": "best[filesize<=50M][ext=mp4]/w[ext=mp4]",
-    }
-    audio_opts = {
-        "outtmpl": temp_file + ".mp3",
-        "format": "wa",  # "bestaudio[ext=mp3]"
-    }
-
-    download_media(video_opts, "mp4")
-
-    if is_audio:
-        download_media(audio_opts, "mp3")
+      if filesize <= MAX_SIZE_IN_MBYTES:
+          ydl.download([url])
+      else:
+          raise Exception(EX_MAX_DURATION.format(MAX_SIZE_IN_MBYTES))
 
     return [temp_file, media_title, is_audio]

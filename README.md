@@ -9,23 +9,25 @@
 
 ## TODO ADD RELEASENOTES
 
-
 # when updated .service file
+sudo systemctl restart intube_bot.service
+
+# other commands used
 sudo systemctl daemon-reload
 
-#status
+## status
 sudo systemctl status intube_bot.service
 
-#start 
+## start 
 sudo systemctl start intube_bot.service
 
-#stop 
+## stop 
 sudo systemctl stop intube_bot.service
 
-#logs
+## logs
 cat /var/log/syslog | grep  intube
 tac /var/log/syslog | grep  intube
 
-#concat to one file
+## concat to one file
 cat * > logs.txt
 

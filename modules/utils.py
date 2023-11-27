@@ -4,9 +4,12 @@ from pathlib import Path
 from pathlib import Path
 from aiogram import types
 from functools import wraps
-from modules.config import (
-    ADMIN_USER_ID
-)
+from modules.config import ADMIN_USER_ID
+
+
+async def reply_text(message: types.Message, message_text: str):
+    await message.reply(message_text)
+
 
 async def reply_video(message: types.Message, video_file: str, delete: bool = True):
     with open(video_file, "rb") as video:
@@ -27,6 +30,14 @@ async def reply_photo(message: types.Message, file: str, delete: bool = True):
 async def reply_audio(message: types.Message, audio_file: str):
     with open(audio_file, "rb") as audio:
         await message.reply_audio(audio)
+
+    remove_file_safe(audio_file)
+
+
+async def reply_voice(message: types.Message, audio_file: str, title: str):
+    with open(audio_file, "rb") as audio:
+        await message.reply(title)
+        await message.reply_voice(audio)
 
     remove_file_safe(audio_file)
 

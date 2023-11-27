@@ -93,6 +93,6 @@ websockets==9.1
 wrapt==1.15.0
 yarl==1.9.3
 youtube-dl==2021.12.17
-yt-dlp==2023.7.6
+yt-dlp==2023.11.14
 ytmusicapi==0.24.1
 zipp==1.0.0

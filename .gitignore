@@ -3,6 +3,7 @@
 
 #folders
 temp/
+env/
 .venv/
 logs/
 

@@ -1,30 +1,38 @@
 import os
 import asyncio
-from aiogram import Bot, types
-from aiogram.dispatcher import Dispatcher
-from aiogram.dispatcher.filters import Command
+from aiogram import F
+from aiogram import Dispatcher, Bot, types, Router
+from aiogram.filters import Command, CommandStart
 from modules.core import process_message
 from modules.mongo import save_user, feed_stats, usage_stats, user_stats
 from modules.logger import last_logs
 from modules.config import TOKEN, START_MESSAGE, WAIT_MESSAGE
-from modules.config import WORKERS_COUNT, ADMIN_USER_ID
+from modules.config import (
+    WORKERS_COUNT
+)
 from modules.utils import admin_required
 
-bot = Bot(token=TOKEN)
-dp = Dispatcher(bot)
+router = Router(name=__name__)
+dp = Dispatcher()
 
 message_queue = asyncio.Queue()
 processing_now = asyncio.Queue()
 
 
-@dp.message_handler(Command("start"))
+async def bot_starter() -> None:
+    # Initialize Bot instance with a default parse mode which will be passed to all API calls
+    bot = Bot(TOKEN)
+    # And the run events dispatching
+    await dp.start_polling(bot)
+
+@dp.message(CommandStart())
 async def start(message: types.Message):
     await message.reply(START_MESSAGE)
     save_user(message.from_user)
 
 
 # show last downloaded links
-@dp.message_handler(Command("feed"))
+@dp.message(Command("feed"))
 @admin_required
 async def feed(message: types.Message):
     user_id = message.from_user.id
@@ -33,7 +41,7 @@ async def feed(message: types.Message):
 
 
 # show stats: video_downloaded - user - user id
-@dp.message_handler(Command("admin"))
+@dp.message(Command("admin"))
 @admin_required
 async def admin(message: types.Message):
     user_id = message.from_user.id
@@ -42,7 +50,7 @@ async def admin(message: types.Message):
 
 
 # show usernames
-@dp.message_handler(Command("users"))
+@dp.message(Command("users"))
 @admin_required
 async def admin(message: types.Message):
     user_id = message.from_user.id
@@ -51,7 +59,7 @@ async def admin(message: types.Message):
 
 
 # show logfile last 10 lines
-@dp.message_handler(Command("log"))
+@dp.message(Command("log"))
 @admin_required
 async def log(message: types.Message):
     user_id = message.from_user.id
@@ -60,7 +68,8 @@ async def log(message: types.Message):
 
 
 # handle all text messages
-@dp.message_handler(content_types=types.ContentType.TEXT)
+@dp.message()
+@router.message(F.content_type.in_({'text'}))
 async def handle_message(message: types.Message):
     await message_queue.put(message)
 

@@ -75,3 +75,10 @@ def admin_required(func):
         return await func(message)
 
     return wrapper
+
+def escape_md(text: str) -> str:
+    """
+    Escapes markdown-sensitive characters within other markdown
+    constructs.
+    """
+    return re.compile(r"([\\\[\]\(\)])").sub(r"\\\1", text)

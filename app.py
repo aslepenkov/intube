@@ -2,10 +2,13 @@ from dotenv import load_dotenv
 
 load_dotenv(".env")
 
+import asyncio
 from modules.logger import logger
-from modules.bot import dp
-from aiogram.utils.executor import start_polling
+from modules.bot import bot_starter
+
+# if __name__ == "__main__":
+#     start_polling(dp, skip_updates=True)
 
 if __name__ == "__main__":
     logger.info("Starting bot")
-    start_polling(dp, skip_updates=False)
+    asyncio.run(bot_starter())

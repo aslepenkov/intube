@@ -25,6 +25,7 @@ async def process_message(message: types.Message):
 
     try:
         file = None
+        media_title = None
         await message.reply(DOWNLOAD_STARTED)
         if "instagram.com/" in url:
             url = url.replace("instagram.com", "ddinstagram.com")
@@ -32,7 +33,8 @@ async def process_message(message: types.Message):
             await reply_text(message, url)
         else:
             file = await download_media(url)
-            if file:
+            await reply_text(message, file)
+            if False and file:
                 temp_file = file[0]
                 media_title = file[1]
                 is_audio = file[2]
@@ -46,33 +48,6 @@ async def process_message(message: types.Message):
     finally:
         media = media_title if file else ""
         save_stats(message.from_user.id, url, media)
-
-async def return_video_urls(url: str):
-    ydl_opts = {
-        "format": "best[filesize<=50M][ext=mp4]/w[ext=mp4]",
-    }
-
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(url, download=False)  # Only fetch metadata
-        formats = info['formats']
-        filtered_formats =  list(filter(lambda x: x.get('audio_channels'), formats))
-
-        #preffered_format1080 = list(filter(lambda x: x.get('format_note') == '1080p', filtered_formats))
-        preffered_format720 = list(filter(lambda x: x.get('format_note') == '720p', filtered_formats))
-        preffered_format360 = list(filter(lambda x: x.get('format_note') == '360p', filtered_formats))
-        try:
-            link360 = preffered_format360[0].get('url', 'no 360 link')
-            link720 = preffered_format720[0].get('url', 'no 720 link')
-            #link1080 = preffered_format1080[0].get('url', 'no 1080 link')
-        except:
-            return []
-
-    return [
-        f'{link360}',
-        f'{link720}',
-        #f'[1080p]({link1080})',
-        #f'[MAX]({linkMax})', #no sound or not more than 720p
-       ]
 
 
 async def download_media(url: str):
@@ -98,29 +73,16 @@ async def download_media(url: str):
         preffered_format720 = list(filter(lambda x: x.get('format_note') == '720p', filtered_formats))
         preffered_format360 = list(filter(lambda x: x.get('format_note') == '360p', filtered_formats))
         
-        print("0!")
-        print(f"filtered_formats - {filtered_formats}" )
-        print("1!")
+        if len(preffered_format360) > 0:
+            return preffered_format360[0].get('url', 'no 360 link')
+        
+        if len(preffered_format720) > 0:
+            return preffered_format720[0].get('url', 'no 360 link')
 
-        print(f'preffered_format360 - {preffered_format360}')
-        print("2!")
+        #link1080 = preffered_format1080[0].get('url', 'no 720 link')
+        #return link360
 
-        print(f'preffered_format720 - {preffered_format720.count()}')
-        print("3!")
-
-        print(f'preffered_format1080 - {preffered_format1080.count()}')
-        print("4!")
-
-        # print(sorted_formats)
-
-
-        link360 = preffered_format360[0].get('url', 'no 360 link')
-        link720 = preffered_format720[0].get('url', 'no 720 link')
-        link1080 = preffered_format1080[0].get('url', 'no 720 link')
-        #linkMax = sorted_formats[0].get('url', 'no max link')
-
-
-        print("LINKZZZZ")
+        #print("LINKZZZZ")
 
         return []
         if duration / 60 < 15:

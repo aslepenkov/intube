@@ -11,11 +11,10 @@ from modules.config import (
     SUPPORTED_URLS,
     DOWNLOAD_STARTED,
     EX_VALID_LINK,
-    INSTAGRAM_NOT_SUPPORTED_MESSAGE,
     MAX_SIZE_IN_MBYTES,
     EX_MAX_DURATION,
 )
-
+import copy
 
 async def process_message(message: types.Message):
     url = message.text
@@ -28,12 +27,11 @@ async def process_message(message: types.Message):
         file = None
         await message.reply(DOWNLOAD_STARTED)
         if "instagram.com/" in url:
-            # file = await download_and_send_instagram(message, url)
             url = url.replace("instagram.com", "ddinstagram.com")
             url = url.replace("www.", "")
             await reply_text(message, url)
         else:
-            file = await download_video_old(url)
+            file = await download_media(url)
             if file:
                 temp_file = file[0]
                 media_title = file[1]
@@ -42,7 +40,6 @@ async def process_message(message: types.Message):
                     await reply_voice(message, temp_file, media_title)
                 else:
                     await reply_video_new(message, temp_file)
-                #save_stats(message.from_user.id, url, a_media_title)
     except Exception as e:
         await message.reply(f"[v1] Sorry, some error. {str(e)}")
         save_error(message.from_user.id, url, str(e))
@@ -50,8 +47,35 @@ async def process_message(message: types.Message):
         media = media_title if file else ""
         save_stats(message.from_user.id, url, media)
 
+async def return_video_urls(url: str):
+    ydl_opts = {
+        "format": "best[filesize<=50M][ext=mp4]/w[ext=mp4]",
+    }
 
-async def download_video_old(url: str):
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(url, download=False)  # Only fetch metadata
+        formats = info['formats']
+        filtered_formats =  list(filter(lambda x: x.get('audio_channels'), formats))
+
+        #preffered_format1080 = list(filter(lambda x: x.get('format_note') == '1080p', filtered_formats))
+        preffered_format720 = list(filter(lambda x: x.get('format_note') == '720p', filtered_formats))
+        preffered_format360 = list(filter(lambda x: x.get('format_note') == '360p', filtered_formats))
+        try:
+            link360 = preffered_format360[0].get('url', 'no 360 link')
+            link720 = preffered_format720[0].get('url', 'no 720 link')
+            #link1080 = preffered_format1080[0].get('url', 'no 1080 link')
+        except:
+            return []
+
+    return [
+        f'{link360}',
+        f'{link720}',
+        #f'[1080p]({link1080})',
+        #f'[MAX]({linkMax})', #no sound or not more than 720p
+       ]
+
+
+async def download_media(url: str):
     temp_dir = "temp"
     temp_file_name = str(uuid.uuid4())
     temp_file = f"{temp_dir}/{temp_file_name}.mp4"
@@ -67,7 +91,38 @@ async def download_video_old(url: str):
         info = ydl.extract_info(url, download=False)  # Only fetch metadata
         duration = info.get("duration", 0)
         video_title = info.get("title", "untitled")
+        formats = info['formats']
+        filtered_formats =  list(filter(lambda x: x.get('audio_channels'), formats))
 
+        preffered_format1080 = list(filter(lambda x: x.get('format_note') == '1080p', filtered_formats))
+        preffered_format720 = list(filter(lambda x: x.get('format_note') == '720p', filtered_formats))
+        preffered_format360 = list(filter(lambda x: x.get('format_note') == '360p', filtered_formats))
+        
+        print("0!")
+        print(f"filtered_formats - {filtered_formats}" )
+        print("1!")
+
+        print(f'preffered_format360 - {preffered_format360}')
+        print("2!")
+
+        print(f'preffered_format720 - {preffered_format720.count()}')
+        print("3!")
+
+        print(f'preffered_format1080 - {preffered_format1080.count()}')
+        print("4!")
+
+        # print(sorted_formats)
+
+
+        link360 = preffered_format360[0].get('url', 'no 360 link')
+        link720 = preffered_format720[0].get('url', 'no 720 link')
+        link1080 = preffered_format1080[0].get('url', 'no 720 link')
+        #linkMax = sorted_formats[0].get('url', 'no max link')
+
+
+        print("LINKZZZZ")
+
+        return []
         if duration / 60 < 15:
             ydl.download([url])
         else:
@@ -100,3 +155,53 @@ async def download_audio(url: str):
           raise Exception(EX_MAX_DURATION.format(MAX_SIZE_IN_MBYTES))
 
     return [temp_file, media_title, is_audio]
+
+async def  get_direct_video_url(url):
+  ydl = yt_dlp.YoutubeDL()
+  try:
+    info = ydl.extract_info(url, download=False)
+    formats = copy.deepcopy(info['formats'])
+    filtered_formats =  list(filter(lambda x: x.get('audio_channels'), formats))
+
+    preffered_format1080 =  list(filter(lambda x: x.get('format_note') == '1080p', filtered_formats))
+    preffered_format720 =  list(filter(lambda x: x.get('format_note') == '720p', filtered_formats))
+    preffered_format360 =  list(filter(lambda x: x.get('format_note') == '360p', filtered_formats))
+    #sorted_formats = sorted(filtered_formats, key=lambda fmt: fmt.get('filesize', 0) or -1, reverse=True)
+    
+    print("0!")
+
+    print(f"filtered_formats - {filtered_formats.count()}" )
+    print("1!")
+
+    print(f'preffered_format360 - {preffered_format360.count()}')
+    print("2!")
+
+    print(f'preffered_format720 - {preffered_format720.count()}')
+    print("3!")
+
+    print(f'preffered_format1080 - {preffered_format1080.count()}')
+    print("4!")
+
+    # print(sorted_formats)
+
+
+    link360 = preffered_format360[0].get('url', 'no 360 link')
+    link720 = preffered_format720[0].get('url', 'no 720 link')
+    link1080 = preffered_format1080[0].get('url', 'no 720 link')
+    #linkMax = sorted_formats[0].get('url', 'no max link')
+
+
+    print("LINKZZZZ")
+
+    print(link360)
+    print(link720)
+    print(link1080)
+
+    return [
+            f'[360p]({link360})',
+            f'[720p]({link720})',
+            f'[1080p]({link1080})',
+            #f'[MAX]({linkMax})', #no sound or not more than 720p
+           ]
+  except:
+    return []

@@ -11,7 +11,7 @@ async def reply_text(message: types.Message, message_text: str):
     await message.reply(message_text)
 
 
-async def reply_video_new(message: types.Message, video_file: str, delete: bool = True):
+async def reply_video(message: types.Message, video_file: str, delete: bool = True):
     await message.reply_video(FSInputFile(video_file))
 
     if delete:

@@ -1,11 +1,12 @@
 aiogram==3.2.0
 coverage==7.3.2
 instaloader==4.10.1
-pytest==7.4.3
 python-dotenv==1.0.0
 yt-dlp==2023.11.16
 
 #dev
 pymongo==4.6.0
-coverage==7.3.2touch 
+coverage==7.3.2
 MagicMock
+pytest==7.4.3
+

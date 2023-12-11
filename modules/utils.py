@@ -11,7 +11,7 @@ async def reply_text(message: types.Message, message_text: str):
     await message.reply(message_text)
 
 
-async def reply_video_new(message: types.Message, video_file: str, delete: bool = True):
+async def reply_video(message: types.Message, video_file: str, delete: bool = True):
     await message.reply_video(FSInputFile(video_file))
 
     if delete:
@@ -71,13 +71,7 @@ def admin_required(func):
 
     return wrapper
 
-def escape_m1d(text: str) -> str:
-    """
-    Escapes markdown-sensitive characters within other markdown
-    constructs.
-    """
-    return re.compile(r"([\\\[\]\(\)])").sub(r"\\\1", text)
-
-def escape_md(txt) -> str:
-  match_md = r'((([\.\#\(\)_*!]).+?\3[\.\#\(\)^_*!]*)*)([\.\#\(\)_*!])'
-  return re.sub(match_md, "\g<1>\\\\\g<4>", txt)
+def escape_md(text):
+    special_chars = '\\`*_{}[]()#+-.!=|'
+    escaped = ''.join(['\\' + char if char in special_chars else char for char in text])
+    return escaped

@@ -1,33 +1,28 @@
 #RUN YOUR OWN YT/INSTA/TT videos downloader bot
 
-## TODO ADD used libs
-* yt-dlp
-* pymongo
-* aiogram
-* instaloader
-* python-dotenv
-
-## TODO ADD RELEASENOTES
+# commands used
+## Create a new virtual environment by running 
+sudo apt install python3.11-venv
+python3 -m venv <venv_name>
+source <venv_name>/bin/activate
+deactivate
+pip install -r requrements.txt
+pip freeze > requrements.txt
 
 # when updated .service file
 sudo systemctl restart intube_bot.service
-
-# other commands used
 sudo systemctl daemon-reload
-
-## status
 sudo systemctl status intube_bot.service
-
-## start 
 sudo systemctl start intube_bot.service
-
-## stop 
 sudo systemctl stop intube_bot.service
 
-## logs
+
+# logs
 cat /var/log/syslog | grep  intube
 tac /var/log/syslog | grep  intube
 
 ## concat to one file
 cat * > logs.txt
 
+## mongo filter
+{"user": {"$regex": "^id.*"}}

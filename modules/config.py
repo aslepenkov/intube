@@ -2,7 +2,7 @@
 from dotenv import load_dotenv
 import os
 
-PRODUCTION = eval(os.getenv("PRODUCTION", False))
+PRODUCTION = os.getenv("PRODUCTION", "False").lower() == "true"
 
 if not PRODUCTION:
     TOKEN = os.getenv("TELEGRAM_BOT_TOKEN_DEBUG")
@@ -36,6 +36,8 @@ SUPPORTED_URLS = [
     "youtube.com/",
     "www.youtube.com/",
     "m.youtube.com/",
+    "https://www.reddit.com/",
+    "reddit.com/",
 ]
 
 # Messages

@@ -30,21 +30,25 @@ async def start(message: types.Message):
     await message.reply(START_MESSAGE)
     save_user(message.from_user)
 
+# show available actions for user with ADMIN_USER_ID
+@dp.message(Command("admin"))
+@admin_required
+async def feed(message: types.Message):
+    msg = "/feed\n/usage\n/users\n/log\n/logfile"
+    await message.reply(msg)
 
 # show last downloaded links
 @dp.message(Command("feed"))
 @admin_required
 async def feed(message: types.Message):
-    user_id = message.from_user.id
     stats = feed_stats()
     await message.reply(stats, parse_mode="MarkdownV2")
 
 
 # show stats: video_downloaded - user - user id
-@dp.message(Command("admin"))
+@dp.message(Command("usage"))
 @admin_required
 async def admin(message: types.Message):
-    user_id = message.from_user.id
     stats = usage_stats()
     await message.reply(stats, parse_mode="MarkdownV2")
 
@@ -53,7 +57,6 @@ async def admin(message: types.Message):
 @dp.message(Command("users"))
 @admin_required
 async def admin(message: types.Message):
-    user_id = message.from_user.id
     stats = user_stats()
     await message.reply(stats, parse_mode="MarkdownV2")
 
@@ -62,7 +65,6 @@ async def admin(message: types.Message):
 @dp.message(Command("log"))
 @admin_required
 async def log(message: types.Message):
-    user_id = message.from_user.id
     formatted_lines = last_logs()
     await message.reply(formatted_lines, parse_mode="MarkdownV2")
 

@@ -6,9 +6,6 @@ import asyncio
 from modules.logger import logger
 from modules.bot import bot_starter
 
-# if __name__ == "__main__":
-#     start_polling(dp, skip_updates=True)
-
 if __name__ == "__main__":
     logger.info("Starting bot")
     asyncio.run(bot_starter())

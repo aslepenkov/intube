@@ -6,8 +6,10 @@ temp/
 env/
 .venv/
 logs/
+.pytest_cache/
 
 #files
 .env
 script.sh
 intube.service
+.coverage

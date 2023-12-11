@@ -59,32 +59,20 @@ async def download_media(url: str):
 
     ydl_opts = {
         "outtmpl": temp_file,
-        "format": "best[filesize<=50M][ext=mp4]/w[ext=mp4]",
+        "format": "best[filesize<=50M]/w[ext=mp4]",
     }
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=False)  # Only fetch metadata
         duration = info.get("duration", 0)
         video_title = info.get("title", "untitled")
-        formats = info['formats']
-        filtered_formats =  list(filter(lambda x: x.get('audio_channels'), formats))
 
-        preffered_format1080 = list(filter(lambda x: x.get('format_note') == '1080p', filtered_formats))
-        preffered_format720 = list(filter(lambda x: x.get('format_note') == '720p', filtered_formats))
-        preffered_format360 = list(filter(lambda x: x.get('format_note') == '360p', filtered_formats))
-        
-        #if len(preffered_format360) > 0:
-        #    return preffered_format360[0].get('url', 'no 360 link')
-        #
-        #if len(preffered_format720) > 0:
-        #    return preffered_format720[0].get('url', 'no 360 link')
-    
+
         if duration / 60 < 15:
             ydl.download([url])
         else:
             return await download_audio(url)
         
-    #return []
     return [temp_file, video_title, False]
 
 async def download_audio(url: str):

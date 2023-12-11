@@ -1,0 +1,34 @@
+name: Run Tests and Generate Coverage
+
+on:
+  pull_request:
+    branches:
+      - master
+      - development
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.10.12'  # Replace with your Python version
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt  # Replace with your requirements file
+
+    - name: Run tests with coverage
+      run: |
+        coverage run -m unittest discover -s tests -p 'test_*.py'
+        coverage report -m  # Display coverage report in the console
+
+    - name: Upload coverage report to Codecov
+      uses: codecov/codecov-action@v2
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}  # Add a GitHub token with sufficient permissions

@@ -12,7 +12,7 @@ from modules.config import (
     USERS_COLLECTION,
     ERROR_COLLECTION,
 )
-
+from aiogram import types
 mongo_client = MongoClient(MONGO_URL)
 mongo_db = mongo_client[MONGO_DB]
 stats_collection = mongo_db[STATS_COLLECTION]
@@ -31,77 +31,117 @@ def feed_stats():
                 "date": {"$first": "$date"},
             }
         },
+        {"$match": {"video_title": {"$exists": True, "$ne": ""}}},
         {"$sort": {"date": -1}},
-        {"$limit": 100},
+        {"$limit": 200},
     ]
 
     sorted_feed = list(stats_collection.aggregate(pipeline))
     filtered_data = list(
         map(
             lambda doc: {
-                "link": escape_md(doc["_id"]),
+                "link": escape_md(doc["link"]),
                 "video_title": escape_md(doc["video_title"]),
             },
-            filter(lambda doc: is_link(doc["_id"]), sorted_feed),
+            sorted_feed
         )
     )
 
     links_str = "\n".join(
-        map(lambda x: f"[{x['video_title']}]({x['link']})", filtered_data[:20])
+        map(lambda x: f"[{x['video_title']}]({x['link']})", filtered_data[:30])
     )
+
     return f"{links_str}"
 
-
+    
 def user_stats():
-    users = users_collection.find({})
-    usernames = set(
-        map(lambda x: json.loads(x["user"]).get("username", "no_user_name"), users)
-    )
-    sorted_usernames = sorted(usernames)[:100]
-    formatted_usernames = "\n".join(map(lambda x: f"``` {x} ```", sorted_usernames))
+    # Aggregation pipeline to handle usernames and IDs
+    pipeline = [
+        {
+            '$project': {
+                'username': {
+                    '$cond': {
+                        'if': {'$ne': ['$userObj.username', None]},
+                        'then': '$userObj.username',
+                        'else': {'$toString': '$userObj.id'}
+                    }
+                }
+            }
+        },
+        {
+            '$addFields': {
+                'lowercase_username': {'$toLower': '$username'}
+            }
+        },
+        {
+            '$sort': {'lowercase_username': 1}  # Sort by lowercase username in ascending order (-1 for descending)
+        },
+        {
+            '$project': {
+                'lowercase_username': 1,  # Include the original username field
+            }
+        }
+    ]
+    # Perform the aggregation
+    result = list(users_collection.aggregate(pipeline))
 
-    return formatted_usernames
+    # Extract usernames from the aggregation result
+    usernames = [entry['lowercase_username'] for entry in result]
+
+    # Format and return the unique usernames
+    formatted_usernames = "\n".join(usernames[:150])  # Get the first 100 unique usernames
+    return f"```\n{formatted_usernames}\n```"
 
 
 def usage_stats():
-    usersc = list(map(lambda x: json.loads(x["user"]), users_collection.find({})))
-    data = list(
-        map(
-            lambda user: {
-                "username": user.get("username", "no_user_name"),
-                "id": user.get("id", -1),
-            },
-            usersc,
-        )
-    )
-
-    user_counts = Counter(
-        doc["user"] for doc in stats_collection.find() if doc["user"] is not None
-    )
-    user_counts_sorted = sorted(user_counts.items(), key=lambda x: x[1], reverse=True)
-
-    user_list = [
-        {"username": username, "user_id": user_id, "count": count}
-        for user_id, count in user_counts_sorted
-        if (
-            username := next(
-                (obj["username"] for obj in data if obj["id"] == user_id), None
-            )
-        )
+    total_stats_documents = stats_collection.count_documents({})
+    pipeline = [
+        {
+            '$lookup': {
+                'from': f'{stats_collection.name}',
+                'localField': 'userObj.id',
+                'foreignField': 'user',
+                'as': 'user_stats'
+            }
+        },
+        {
+            '$match': {
+                'user_stats': {'$ne': []}  # Filter out documents with empty 'user_stats' array
+            }
+        },
+        {
+            '$project': {
+                'username': {'$ifNull': ['$userObj.username', {'$toString': '$userObj.id'}]},
+                'statsCount': {'$size': '$user_stats'}
+            }
+        },
+        {
+            '$group': {
+                '_id': '$username',
+                'totalStatsCount': {'$sum': '$statsCount'}
+            }
+        },
+        {
+            '$sort': {'totalStatsCount': -1}  # Sort by totalStatsCount in descending order
+        }
     ]
 
-    user_counts_str = "\n".join(
-        map(
-            lambda x: f"``` {x['count']}\t{x['username']}\t{x['user_id']} ```",
-            user_list[:20],
-        )
-    )
+    # Perform the aggregation
+    result = list(users_collection.aggregate(pipeline))[:150]
 
-    return user_counts_str
+    # Sort the usernames in descending order by totalStatsCount and format as markdown pre
+    formatted_usernames = "\n".join([f"{entry['_id']}: {entry['totalStatsCount']}" for entry in result])
+    
+    return f"```\n{formatted_usernames}\n```\nTotal usage: {total_stats_documents}"
 
 
-def save_user(user: str):
-    user_doc = {"date": datetime.now(), "user": str(user)}
+def save_user(user):
+    existing_user = users_collection.find_one({"userObj.id": user.id})
+
+    if existing_user:
+        return
+    
+    user_doc = {"date": datetime.now(), "userObj": dict(user)}
     users_collection.insert_one(user_doc)
 
 

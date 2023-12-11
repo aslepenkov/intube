@@ -1,7 +1,9 @@
 #RUN YOUR OWN YT/INSTA/TT videos downloader bot
 
 # commands used
-## Create a new virtual environment by running python3 -m venv <venv_name>.
+## Create a new virtual environment by running 
+sudo apt install python3.11-venv
+python3 -m venv <venv_name>
 source <venv_name>/bin/activate
 deactivate
 pip install -r requrements.txt
@@ -22,3 +24,5 @@ tac /var/log/syslog | grep  intube
 ## concat to one file
 cat * > logs.txt
 
+## mongo filter
+{"user": {"$regex": "^id.*"}}

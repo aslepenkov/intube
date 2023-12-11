@@ -7,6 +7,6 @@ yt-dlp==2023.11.16
 #dev
 pymongo==4.6.0
 coverage==7.3.2
-MagicMock
 pytest==7.4.3
+MagicMock
 

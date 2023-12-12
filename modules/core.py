@@ -1,20 +1,18 @@
 import os
 import uuid
 import yt_dlp
-import shutil
-import instaloader
 from modules.logger import logger
 from aiogram import types
 from modules.mongo import save_error, save_stats
-from modules.utils import reply_video, reply_voice, reply_photo, reply_text
+from modules.utils import reply_video, reply_voice, reply_text
 from modules.config import (
-    SUPPORTED_URLS,
     DOWNLOAD_STARTED,
-    EX_VALID_LINK,
+    SUPPORTED_URLS,
     MAX_SIZE_IN_MBYTES,
+    EX_VALID_LINK,
     EX_MAX_DURATION,
 )
-import copy
+
 
 async def process_message(message: types.Message):
     url = message.text
@@ -27,13 +25,13 @@ async def process_message(message: types.Message):
         file = None
         media_title = None
         await message.reply(DOWNLOAD_STARTED)
-        if "instagram.com/" in url:
+        if ".instagram.com/" in url or usrl.startswith("instagram.com/"):
             url = url.replace("instagram.com", "ddinstagram.com")
             url = url.replace("www.", "")
             await reply_text(message, url)
         else:
             file = await download_media(url)
-            #await reply_text(message, file)
+            # await reply_text(message, file)
             if file:
                 temp_file = file[0]
                 media_title = file[1]
@@ -43,7 +41,7 @@ async def process_message(message: types.Message):
                 else:
                     await reply_video(message, temp_file)
     except Exception as e:
-        await message.reply(f"[v1] Sorry, some error. {str(e)}")
+        await message.reply(f"Sorry, some error. {str(e)}")
         save_error(message.from_user.id, url, str(e))
     finally:
         media = media_title if file else ""
@@ -59,7 +57,8 @@ async def download_media(url: str):
 
     ydl_opts = {
         "outtmpl": temp_file,
-        "format": "best[filesize<=50M]/w[ext=mp4]",
+        "noplaylist": True,
+        "format": "best[filesize<=50M]/w[ext=mp4]/w[ext=m4a]/w[ext=webm]/wa"
     }
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -67,13 +66,13 @@ async def download_media(url: str):
         duration = info.get("duration", 0)
         video_title = info.get("title", "untitled")
 
-
         if duration / 60 < 15:
             ydl.download([url])
         else:
             return await download_audio(url)
-        
+
     return [temp_file, video_title, False]
+
 
 async def download_audio(url: str):
     is_audio = True
@@ -86,17 +85,18 @@ async def download_audio(url: str):
 
     ydl_opts = {
         "outtmpl": temp_file,
+        "noplaylist": True,
         "format": "wa",
     }
-    
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-      info = ydl.extract_info(url, download=False)  # Only fetch metadata
-      media_title = info.get("title", "untitled")
-      filesize = info.get("filesize", 0) / 1024 / 1024  # MBytes
 
-      if filesize <= MAX_SIZE_IN_MBYTES:
-          ydl.download([url])
-      else:
-          raise Exception(EX_MAX_DURATION.format(MAX_SIZE_IN_MBYTES))
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(url, download=False)  # Only fetch metadata
+        media_title = info.get("title", "untitled")
+        filesize = info.get("filesize", 0) / 1024 / 1024  # MBytes
+
+        if filesize <= MAX_SIZE_IN_MBYTES:
+            ydl.download([url])
+        else:
+            raise Exception(EX_MAX_DURATION.format(MAX_SIZE_IN_MBYTES))
 
     return [temp_file, media_title, is_audio]

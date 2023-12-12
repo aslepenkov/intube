@@ -1,10 +1,10 @@
+from modules.bot import bot_starter
+from modules.logger import logger
+import asyncio
 from dotenv import load_dotenv
 
-load_dotenv(".env")
+load_dotenv(".env", override=True)
 
-import asyncio
-from modules.logger import logger
-from modules.bot import bot_starter
 
 if __name__ == "__main__":
     logger.info("Starting bot")

@@ -7,6 +7,7 @@ from functools import wraps
 from modules.config import ADMIN_USER_ID
 from aiogram.types import FSInputFile
 
+
 async def reply_text(message: types.Message, message_text: str):
     await message.reply(message_text)
 
@@ -39,7 +40,7 @@ async def reply_voice(message: types.Message, audio_file: str, title: str):
 
 
 async def reply_file(message: types.Message, file: str):
-    await message.reply_document (FSInputFile(file))
+    await message.reply_document(FSInputFile(file))
 
     remove_file_safe(file)
 
@@ -71,7 +72,9 @@ def admin_required(func):
 
     return wrapper
 
+
 def escape_md(text):
     special_chars = '\\`*_{}[]()#+-.!=|'
-    escaped = ''.join(['\\' + char if char in special_chars else char for char in text])
+    escaped = ''.join(
+        ['\\' + char if char in special_chars else char for char in text])
     return escaped

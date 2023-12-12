@@ -53,7 +53,7 @@ def feed_stats():
 
     return f"{links_str}"
 
-    
+
 def user_stats():
     # Aggregation pipeline to handle usernames and IDs
     pipeline = [
@@ -74,7 +74,8 @@ def user_stats():
             }
         },
         {
-            '$sort': {'lowercase_username': 1}  # Sort by lowercase username in ascending order (-1 for descending)
+            # Sort by lowercase username in ascending order (-1 for descending)
+            '$sort': {'lowercase_username': 1}
         },
         {
             '$project': {
@@ -89,7 +90,8 @@ def user_stats():
     usernames = [entry['lowercase_username'] for entry in result]
 
     # Format and return the unique usernames
-    formatted_usernames = "\n".join(usernames[:150])  # Get the first 100 unique usernames
+    # Get the first 100 unique usernames
+    formatted_usernames = "\n".join(usernames[:150])
     return f"```\n{formatted_usernames}\n```"
 
 
@@ -106,7 +108,8 @@ def usage_stats():
         },
         {
             '$match': {
-                'user_stats': {'$ne': []}  # Filter out documents with empty 'user_stats' array
+                # Filter out documents with empty 'user_stats' array
+                'user_stats': {'$ne': []}
             }
         },
         {
@@ -122,7 +125,8 @@ def usage_stats():
             }
         },
         {
-            '$sort': {'totalStatsCount': -1}  # Sort by totalStatsCount in descending order
+            # Sort by totalStatsCount in descending order
+            '$sort': {'totalStatsCount': -1}
         }
     ]
 
@@ -130,8 +134,9 @@ def usage_stats():
     result = list(users_collection.aggregate(pipeline))[:150]
 
     # Sort the usernames in descending order by totalStatsCount and format as markdown pre
-    formatted_usernames = "\n".join([f"{entry['_id']}: {entry['totalStatsCount']}" for entry in result])
-    
+    formatted_usernames = "\n".join(
+        [f"{entry['_id']}: {entry['totalStatsCount']}" for entry in result])
+
     return f"```\n{formatted_usernames}\n```\nTotal usage: {total_stats_documents}"
 
 
@@ -140,7 +145,7 @@ def save_user(user):
 
     if existing_user:
         return
-    
+
     user_doc = {"date": datetime.now(), "userObj": dict(user)}
     users_collection.insert_one(user_doc)
 

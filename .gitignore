@@ -3,10 +3,10 @@
 
 #folders
 temp/
-env/
-.venv/
 logs/
+.venv/
 .pytest_cache/
+.vscode/
 
 #files
 .env

@@ -1,4 +1,3 @@
-from dotenv import load_dotenv
 import os
 
 PRODUCTION = os.getenv("PRODUCTION", "False").lower() == "true"
@@ -19,24 +18,27 @@ MONGO_DB = os.getenv("MONGO_DB")
 MAX_SIZE_IN_MBYTES = int(os.getenv("MAX_SIZE_IN_MBYTES", 50))
 WORKERS_COUNT = int(os.getenv("WORKERS_COUNT", 2))
 SUPPORTED_URLS = [
+    # Twitter
+    "twitter.com/",
     "https://twitter.com/",
+    # Instagram
     "https://instagram.com/",
     "https://www.instagram.com/",
-    "https://ddinstagram.com/",
+    "instagram.com/",
+    # TikTok
     "https://vt.tiktok.com/",
     "https://vm.tiktok.com/",
     "https://www.tiktok.com/",
+    # YT
     "https://youtu.be/",
     "https://youtube.com/",
     "https://www.youtube.com/",
     "https://m.youtube.com/",
-    "twitter.com/",
-    "instagram.com/",
-    "ddinstagram.com/",
     "youtu.be/",
     "youtube.com/",
     "www.youtube.com/",
     "m.youtube.com/",
+    # Reddit
     "https://www.reddit.com/",
     "reddit.com/",
 ]
@@ -54,6 +56,8 @@ I need a valid link ༼ つ ◕_◕ ༽つ
 Example: 
 https:/www.instagram.com/reel/*
 https:/www.youtube.com/shorts/*
-https:/vt.tiktok.com/*
+https:/www.youtube.com/*
+https:/*.tiktok.com/*
 https:/twitter.com/*/status/*
+https:/reddit.com/*
 """

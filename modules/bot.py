@@ -5,12 +5,10 @@ from aiogram import Dispatcher, Bot, types, Router
 from aiogram.filters import Command, CommandStart
 from modules.core import process_message
 from modules.mongo import save_user, feed_stats, usage_stats, user_stats
-from modules.logger import last_logs
-from modules.config import TOKEN, START_MESSAGE, WAIT_MESSAGE
-from modules.config import (
-    WORKERS_COUNT
-)
+from modules.logger import last_logs, last_logfile
+from modules.config import TOKEN, START_MESSAGE, WAIT_MESSAGE, WORKERS_COUNT
 from modules.utils import admin_required
+from aiogram.types import FSInputFile
 
 router = Router(name=__name__)
 dp = Dispatcher()
@@ -25,10 +23,12 @@ async def bot_starter() -> None:
     # And the run events dispatching
     await dp.start_polling(bot)
 
+
 @dp.message(CommandStart())
 async def start(message: types.Message):
     await message.reply(START_MESSAGE)
     save_user(message.from_user)
+
 
 # show available actions for user with ADMIN_USER_ID
 @dp.message(Command("admin"))
@@ -38,6 +38,8 @@ async def feed(message: types.Message):
     await message.reply(msg)
 
 # show last downloaded links
+
+
 @dp.message(Command("feed"))
 @admin_required
 async def feed(message: types.Message):
@@ -45,7 +47,7 @@ async def feed(message: types.Message):
     await message.reply(stats, parse_mode="MarkdownV2")
 
 
-# show stats: video_downloaded - user - user id
+# show stats: username - videos_count
 @dp.message(Command("usage"))
 @admin_required
 async def admin(message: types.Message):
@@ -53,7 +55,7 @@ async def admin(message: types.Message):
     await message.reply(stats, parse_mode="MarkdownV2")
 
 
-# show usernames
+# list usernames
 @dp.message(Command("users"))
 @admin_required
 async def admin(message: types.Message):
@@ -61,12 +63,20 @@ async def admin(message: types.Message):
     await message.reply(stats, parse_mode="MarkdownV2")
 
 
-# show logfile last 10 lines
+# show logfile last lines
 @dp.message(Command("log"))
 @admin_required
 async def log(message: types.Message):
     formatted_lines = last_logs()
     await message.reply(formatted_lines, parse_mode="MarkdownV2")
+
+
+# send last logfile
+@dp.message(Command("logfile"))
+@admin_required
+async def log(message: types.Message):
+    logfile = last_logfile()
+    await message.reply_document(FSInputFile(logfile))
 
 
 # handle all text messages

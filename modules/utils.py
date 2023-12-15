@@ -1,7 +1,6 @@
 import os
 import re
 from pathlib import Path
-from pathlib import Path
 from aiogram import types
 from functools import wraps
 from modules.config import ADMIN_USER_ID
@@ -12,37 +11,25 @@ async def reply_text(message: types.Message, message_text: str):
     await message.reply(message_text)
 
 
-async def reply_video(message: types.Message, video_file: str, delete: bool = True):
+async def reply_video(message: types.Message, video_file: str):
     await message.reply_video(FSInputFile(video_file))
 
-    if delete:
-        remove_file_safe(video_file)
 
-
-async def reply_photo(message: types.Message, file: str, delete: bool = True):
+async def reply_photo(message: types.Message, file: str):
     await message.reply_photo(FSInputFile(file))
-
-    if delete:
-        remove_file_safe(file)
 
 
 async def reply_audio(message: types.Message, audio_file: str, title: str, media_duration: int):
     await message.reply_audio(FSInputFile(audio_file), caption=title, duration=media_duration)
-
-    remove_file_safe(audio_file)
 
 
 async def reply_voice(message: types.Message, audio_file: str, title: str):
     await message.reply(title)
     await message.reply_voice(FSInputFile(audio_file))
 
-    remove_file_safe(audio_file)
-
 
 async def reply_file(message: types.Message, file: str):
     await message.reply_document(FSInputFile(file))
-
-    remove_file_safe(file)
 
 
 def remove_file_safe(file: str):

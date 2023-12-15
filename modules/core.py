@@ -1,10 +1,10 @@
 import os
 import uuid
 import yt_dlp
-from modules.logger import logger
 from aiogram import types
+from modules.logger import logger
 from modules.mongo import save_error, save_stats
-from modules.utils import reply_video, reply_audio, reply_text
+from modules.utils import reply_video, reply_audio, reply_text, remove_file_safe
 from modules.config import (
     DOWNLOAD_STARTED,
     SUPPORTED_URLS,
@@ -31,21 +31,25 @@ async def process_message(message: types.Message):
             await reply_text(message, url)
         else:
             media = await download_media(url)
-            # await reply_text(message, file)
-            if media:
-                temp_file = media[0]
-                media_title = media[1]
-                is_audio = media[2]
-                media_duration = media[3]
-                if is_audio:
-                    await reply_audio(message, temp_file, media_title, media_duration)
-                else:
-                    await reply_video(message, temp_file)
+
+            if not media:
+                await reply_text(message, "oops ᓚᘏᗢ")
+
+            temp_file = media[0]
+            media_title = media[1]
+            is_audio = media[2]
+            media_duration = media[3]
+
+            if is_audio:
+                await reply_audio(message, temp_file, media_title, media_duration)
+            else:
+                await reply_video(message, temp_file)
     except Exception as e:
         await message.reply(f"Sorry, some error. {str(e)}")
         save_error(message.from_user.id, url, str(e))
     finally:
         media = media_title if media else ""
+        remove_file_safe(temp_file)
         save_stats(message.from_user.id, url, media)
 
 
@@ -81,7 +85,7 @@ async def download_audio(url: str):
     media_title = "untitled"
     temp_file_name = str(uuid.uuid4())
     temp_file = f"{temp_dir}/{temp_file_name}.mp3"
-    
+
     os.makedirs(temp_dir, exist_ok=True)
 
     ydl_opts = {

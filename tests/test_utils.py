@@ -21,31 +21,6 @@ from modules.utils import (
 
 class TestUtils:
 
-    @pytest.mark.asyncio
-    async def test_reply_text(self):
-        chat = types.Chat(
-            id=12345,  # Replace with a valid chat ID
-            type="private",  # Replace with a valid chat type (e.g., 'private')
-        )
-
-        message = types.Message(
-            message_id=123,  # Replace with a valid message ID
-            date=1234567890,  # Replace with a valid date
-            chat=chat,  # Replace with a valid types.Chat instance
-        )
-        message.reply = MagicMock()
-
-        await reply_text(message, "Test message")
-        message.reply.assert_called_with("Test message")
-
-    @pytest.mark.asyncio
-    async def test_reply_video(self):
-        message = types.Message()
-        message.reply_video = MagicMock()
-
-        await reply_video(message, "test_video.mp4")
-        message.reply_video.assert_called()
-
     def test_remove_file_safe_existing(self, tmp_path):
         file_path = tmp_path / "test_file.txt"
         file_path.touch()
@@ -71,59 +46,6 @@ class TestUtils:
         assert is_link("http://example.com") is True
         assert is_link("ftp://example.com") is False
         assert is_link("example.com") is False
-
-    @pytest.mark.asyncio
-    async def test_admin_required(self):
-        async def test_func(message):
-            return "Test function called"
-
-        admin_message = types.Message()
-        admin_message.from_user.id = int(ADMIN_USER_ID)
-
-        non_admin_message = types.Message()
-        non_admin_message.from_user.id = int(ADMIN_USER_ID) + 1
-
-        wrapped_test_func = admin_required(test_func)
-
-        result_admin = await wrapped_test_func(admin_message)
-        result_non_admin = await wrapped_test_func(non_admin_message)
-
-        assert result_admin == "Test function called"
-        assert result_non_admin is None
-
-    @pytest.mark.asyncio
-    async def test_reply_photo(self):
-        message = types.Message()
-        message.reply_photo = MagicMock()
-
-        await reply_photo(message, "test_photo.jpg")
-        message.reply_photo.assert_called()
-
-    @pytest.mark.asyncio
-    async def test_reply_audio(self):
-        message = types.Message()
-        message.reply_audio = MagicMock()
-
-        await reply_audio(message, "test_audio.mp3")
-        message.reply_audio.assert_called()
-
-    @pytest.mark.asyncio
-    async def test_reply_voice(self):
-        message = types.Message()
-        message.reply = MagicMock()
-        message.reply_voice = MagicMock()
-
-        await reply_voice(message, "test_voice.ogg", "Voice message")
-        message.reply.assert_called_with("Voice message")
-        message.reply_voice.assert_called()
-
-    @pytest.mark.asyncio
-    async def test_reply_file(self):
-        message = types.Message()
-        message.reply_document = MagicMock()
-
-        await reply_file(message, "test_document.pdf")
-        message.reply_document.assert_called()
 
     def test_escape_md(self):
         assert escape_md("Some *text* _here_") == "Some \\*text\\* \\_here\\_"

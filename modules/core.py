@@ -25,9 +25,8 @@ async def process_message(message: types.Message):
         media = None
         media_title = None
         await message.reply(DOWNLOAD_STARTED)
-        if ".instagram.com/" in url or url.startswith("instagram.com/"):
+        if "instagram" in url:
             url = url.replace("instagram.com", "ddinstagram.com")
-            url = url.replace("www.", "")
             await reply_text(message, url)
         else:
             media = await download_media(url)

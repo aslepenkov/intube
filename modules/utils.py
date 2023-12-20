@@ -23,6 +23,7 @@ async def reply_audio(message: types.Message, audio_file: str, title: str, media
     await message.reply_audio(FSInputFile(audio_file), caption=title, duration=media_duration)
 
 
+# deprecated
 async def reply_voice(message: types.Message, audio_file: str, title: str):
     await message.reply(title)
     await message.reply_voice(FSInputFile(audio_file))
@@ -65,3 +66,16 @@ def escape_md(text):
     escaped = ''.join(
         ['\\' + char if char in special_chars else char for char in text])
     return escaped
+
+
+def extract_first_url(message):
+    # Regular expression pattern to match a URL
+    url_pattern = r'(https?://\S+)'
+    
+    # Search for the first match in the message
+    match = re.search(url_pattern, message)
+    
+    if match:
+        return match.group(1)  # Return the first URL found
+    else:
+        return None

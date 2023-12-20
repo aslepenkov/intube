@@ -18,6 +18,10 @@ sudo systemctl status intube_bot.service
 sudo systemctl start intube_bot.service
 sudo systemctl stop intube_bot.service
 
+### if just subprocess
+ps -ef | grep intube
+kill <PID>
+nohup ./script.sh & 
 
 ### logs
 cat /var/log/syslog | grep  intube
@@ -31,5 +35,8 @@ cat * > logs.txt
 
 
 ### TODO
-[] single download_media or bv+wa
-[] download_media return object, not array
+[x] single download_media or bv+wa
+[x] download_media return object, not array
+[x] link picking in message str
+
+

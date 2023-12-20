@@ -1,5 +1,4 @@
 
-from dotenv import load_dotenv
 import os
 
 PRODUCTION = os.getenv("PRODUCTION", "False").lower() == "true"
@@ -12,10 +11,10 @@ else:
 ADMIN_USER_ID = os.getenv("ADMIN_USER_ID")
 MONGO_URL = os.getenv("MONGO_URL")
 
-STATS_COLLECTION = os.getenv("STATS_COLLECTION")
-USERS_COLLECTION = os.getenv("USERS_COLLECTION")
-ERROR_COLLECTION = os.getenv("ERROR_COLLECTION")
-MONGO_DB = os.getenv("MONGO_DB")
+STATS_COLLECTION = os.getenv("STATS_COLLECTION", "STATS_COLLECTION")
+USERS_COLLECTION = os.getenv("USERS_COLLECTION", "USERS_COLLECTION")
+ERROR_COLLECTION = os.getenv("ERROR_COLLECTION", "ERROR_COLLECTION")
+MONGO_DB = os.getenv("MONGO_DB", "MONGO_DB")
 
 MAX_SIZE_IN_MBYTES = int(os.getenv("MAX_SIZE_IN_MBYTES", 50))
 WORKERS_COUNT = int(os.getenv("WORKERS_COUNT", 2))

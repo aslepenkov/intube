@@ -31,9 +31,3 @@ jobs:
         run: |
           coverage run -m unittest discover -s tests -p 'test_*.py'
           coverage report -m > coverage.txt
-
-      - name: Comment PR
-        uses: thollander/actions-comment-pull-request@v2
-        with:
-          message: |
-            Hello world ! :wave:

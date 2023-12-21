@@ -37,8 +37,6 @@ jobs:
         with:
           message: |
             Hello world ! :wave:
-            Coverage Report:
-            ```
-            $(cat coverage.txt)
-            ```
+            Coverage Report will bee soon:
+            
           reactions: eyes, rocket

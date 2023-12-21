@@ -31,14 +31,14 @@ jobs:
         run: |
           coverage run -m unittest discover -s tests -p 'test_*.py'
           coverage report -m > coverage.txt
-
-      - name: Comment on pull request with coverage
-        uses: unsplash/comment-on-pull-request@v1
+      
+      - name: Comment PR
+        uses: thollander/actions-comment-pull-request@v2
         with:
           message: |
+            Hello world ! :wave:
             Coverage Report:
             ```
             $(cat coverage.txt)
             ```
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          reactions: eyes, rocket

@@ -1,10 +1,11 @@
 import os
 import re
+from PIL import Image
 from pathlib import Path
 from aiogram import types
 from functools import wraps
-from modules.config import ADMIN_USER_ID
 from aiogram.types import FSInputFile
+from modules.config import ADMIN_USER_ID
 
 
 async def reply_text(message: types.Message, message_text: str):
@@ -20,7 +21,18 @@ async def reply_photo(message: types.Message, file: str):
 
 
 async def reply_audio(message: types.Message, audio_file: str, title: str, media_duration: int):
-    await message.reply_audio(FSInputFile(audio_file), caption=title, duration=media_duration)
+    thumbnail_filename = f'{audio_file}.jpg'
+    thumbnail = Image.open(f'{audio_file}.webp').convert(
+        'RGB').resize((840, 480))
+    thumbnail.save(thumbnail_filename, 'jpeg')
+
+    await message.reply_audio(
+        audio=FSInputFile(audio_file),
+        caption=title,
+        duration=media_duration,
+        title=title,
+        thumbnail=FSInputFile(thumbnail_filename),
+    )
 
 
 # deprecated
@@ -36,6 +48,14 @@ async def reply_file(message: types.Message, file: str):
 def remove_file_safe(file: str):
     if Path(file).is_file():
         os.remove(file)
+
+
+def remove_files_containing(temp_dir: str, file_substr: str):
+    for filename in os.listdir(temp_dir):
+        if file_substr in filename:
+            file_path = os.path.join(temp_dir, filename)
+            if Path(file_path).is_file():
+                os.remove(file_path)
 
 
 def get_file_size_mb(file_path):
@@ -71,10 +91,10 @@ def escape_md(text):
 def extract_first_url(message):
     # Regular expression pattern to match a URL
     url_pattern = r'(https?://\S+)'
-    
+
     # Search for the first match in the message
     match = re.search(url_pattern, message)
-    
+
     if match:
         return match.group(1)  # Return the first URL found
     else:

@@ -23,11 +23,24 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      - name: Run tests
-        run: |
-          pytest
+      # - name: Run tests with coverage
+      #   run: |
+      #     coverage run -m unittest discover -s tests -p 'test_*.py'
+      #     coverage report -m > coverage.txt
 
-      - name: Run tests with coverage
+      - name: Run tests and capture output
+        id: run_tests
         run: |
-          coverage run -m unittest discover -s tests -p 'test_*.py'
-          coverage report -m > coverage.txt
+          pytest_output=$(pytest)
+          echo "::set-output name=pytest_output::$pytest_output"  # Store pytest output as an action output
+
+      - name: Comment on pull request with pytest output
+        uses: unsplash/comment-on-pr@v1.3.0
+        with:
+          message: |
+            Pytest Output:
+            ```
+            ${{ steps.run_tests.outputs.pytest_output }}
+            ```
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -38,7 +38,20 @@ jobs:
         id: coverage
         run: |
           echo "::set-output name=coverage_content::$(cat coverage.txt)"
-          
+
+      - name: Install deps
+        run: pip install pytest-md pytest-emoji
+
+      - name: Run pytestss
+        uses: pavelzw/pytest-action@v2
+        with:
+          verbose: true
+          emoji: true
+          job-summary: true
+          custom-arguments: "-q"
+          click-to-expand: true
+          report-title: "PyTest Report"
+
       - name: Comment on pull request with pytest output
         uses: unsplash/comment-on-pr@v1.3.0
         with:

@@ -38,11 +38,11 @@ jobs:
         uses: unsplash/comment-on-pr@v1.3.0
         with:
           msg: |
-            Pytest Output:
+            Pytest:
             ```
             ${{ steps.run_tests.outputs.pytest_output }}
             ```
-            
+
             Coverage Report:
             ```
             $(cat coverage.txt)

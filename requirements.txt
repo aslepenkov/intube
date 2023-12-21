@@ -3,6 +3,7 @@ coverage==7.3.2
 instaloader==4.10.1
 python-dotenv==1.0.0
 yt-dlp==2023.11.16
+Pillow==10.1.0
 
 #dev
 pymongo==4.6.0

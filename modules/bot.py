@@ -5,12 +5,13 @@ from aiogram import Dispatcher, Bot, types, Router
 from aiogram.filters import Command, CommandStart
 from modules.core import process_message
 from modules.mongo import save_user, feed_stats, usage_stats, user_stats
-from modules.logger import last_logs
+from modules.logger import last_logs, last_logfile
 from modules.config import TOKEN, START_MESSAGE, WAIT_MESSAGE
 from modules.config import (
     WORKERS_COUNT
 )
 from modules.utils import admin_required
+from aiogram.types import FSInputFile
 
 router = Router(name=__name__)
 dp = Dispatcher()
@@ -61,12 +62,19 @@ async def admin(message: types.Message):
     await message.reply(stats, parse_mode="MarkdownV2")
 
 
-# show logfile last 10 lines
+# show logfile last lines
 @dp.message(Command("log"))
 @admin_required
 async def log(message: types.Message):
     formatted_lines = last_logs()
     await message.reply(formatted_lines, parse_mode="MarkdownV2")
+
+
+@dp.message(Command("logfile"))
+@admin_required
+async def log(message: types.Message):
+    logfile = last_logfile()
+    await message.reply_document(FSInputFile(logfile))
 
 
 # handle all text messages

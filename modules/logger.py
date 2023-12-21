@@ -1,5 +1,5 @@
-import logging
 import os
+import logging
 import datetime
 
 log_dir_name = "logs"
@@ -17,16 +17,21 @@ logging.basicConfig(
 logger = logging.getLogger()
 
 
-def last_logs():
+def last_logfile():
     log_files = sorted(os.listdir(log_dir))
 
-    # Get the latest log file
-    latest_log_file = os.path.join(log_dir, log_files[-1])
+    return os.path.join(log_dir, log_files[-1])
 
+
+def last_logs():
     lines = ""
-    # Read the last 10 lines from the latest log file
+    latest_log_file = last_logfile()
+
+    # Read the last 25 lines from the latest log file
     with open(latest_log_file, "r") as file:
-        lines = file.readlines()[-10:]
+        lines = file.readlines()[-25:]
+
+    formatted_lines = "\n".join(lines)
 
     # Format the lines as markdown code
-    return "\n".join(map(lambda x: f"``` {x} ```", lines))
+    return f"```\n{formatted_lines}\n```"

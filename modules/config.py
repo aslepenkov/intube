@@ -16,6 +16,7 @@ USERS_COLLECTION = os.getenv("USERS_COLLECTION", "USERS_COLLECTION")
 ERROR_COLLECTION = os.getenv("ERROR_COLLECTION", "ERROR_COLLECTION")
 MONGO_DB = os.getenv("MONGO_DB", "MONGO_DB")
 
+TEMP_DIR = "temp"
 MAX_SIZE_IN_MBYTES = int(os.getenv("MAX_SIZE_IN_MBYTES", 50))
 WORKERS_COUNT = int(os.getenv("WORKERS_COUNT", 2))
 SUPPORTED_URLS = [
@@ -48,7 +49,7 @@ DOWNLOAD_STARTED = "(☞ﾟヮﾟ)☞ Download Started..."
 WAIT_MESSAGE = "You are number {} in the queue. Please wait a bit ಠ_ಠ"
 EX_MAX_DURATION = "I can't send videos bigger than {} Mbytes ಥ_ಥ "
 EX_VALID_LINK = """
-I need a valid link ༼ つ ◕_◕ ༽つ
+I need message containing a valid link ༼ つ ◕_◕ ༽つ
 Example: 
 https:/www.instagram.com/reel/*
 https:/www.youtube.com/shorts/*

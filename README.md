@@ -24,6 +24,8 @@ sudo systemctl stop intube_bot.service
 ```
 ps -ef | grep intube
 kill <PID>
+ps -ef | grep "python app.py" | grep -v grep | awk '{print $2}' | xargs kill -9
+
 nohup ./script.sh &
 ```
 
@@ -48,5 +50,5 @@ cat * > logs.txt
 - [x] single download_media or bv+wa
 - [x] download_media return object, not array
 - [x] link picking in message str 
-- [ ] user friendly filename mp3 and cover
+- [x] user friendly filename mp3 and cover
 

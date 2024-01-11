@@ -26,8 +26,10 @@ jobs:
       - name: Run tests and capture output
         id: run_tests
         run: |
+          set -x
           pytest_output=$(pytest)
-          echo "::set-output name=pytest_output::$pytest_output"  # Store pytest output as an action output
+          set +x
+          echo "::set-output name=pytest_output::$pytest_output"
 
       - name: Run tests with coverage
         run: |

@@ -4,7 +4,7 @@ import yt_dlp
 from aiogram import types
 from modules.logger import logger
 from modules.mongo import save_error, save_stats
-from modules.utils import reply_video, reply_audio, reply_text, remove_files_containing, extract_first_url
+from modules.utils import reply_video, reply_audio, reply_text, remove_file_safe, extract_first_url
 from modules.config import (
     DOWNLOAD_STARTED,
     SUPPORTED_URLS,
@@ -31,14 +31,13 @@ class DownloadedMedia:
 async def process_message(message: types.Message):
     url = extract_first_url(message.text)
 
-    if not any(url.startswith(prefix) for prefix in SUPPORTED_URLS):
+    if not url or not any(url.startswith(prefix) for prefix in SUPPORTED_URLS):
         await message.reply(EX_VALID_LINK)
         return
 
     try:
         media = None
         media_title = None
-        temp_file = None
         file_path = None
 
         await message.reply(DOWNLOAD_STARTED)
@@ -65,43 +64,11 @@ async def process_message(message: types.Message):
         save_error(message.from_user.id, url, str(e))
 
     finally:
-        media = media_title if media else ""
-        if file_name:
-            remove_files_containing(TEMP_DIR, file_name)
-        save_stats(message.from_user.id, url, media)
+        if file_path:
+            remove_file_safe(file_path)
 
-
-def select_best_format(formats, duration):
-    # Filter formats by those less than 50 megabytes
-    filtered_formats = [
-        f for f in formats
-        if ('filesize' in f and f['filesize'] and f['filesize'] < 50 * 1024 * 1024)
-        or ('filesize_approx' in f and f['filesize_approx'] and f['filesize_approx'] < 50 * 1024 * 1024)
-    ]
-
-    filtered_formats = [
-        f for f in filtered_formats if f.get('acodec') != 'none']
-
-    filtered_formats = [
-        f for f in filtered_formats if f.get('ext') != 'webm']
-
-    # Sort filtered formats by filesize or filesize_approx if available
-    sorted_formats = sorted(
-        filtered_formats,
-        key=lambda x: x.get('filesize') or x.get(
-            'filesize_approx') or float('inf'),
-        reverse=True  # Sort in descending order
-    )
-    
-    for f in sorted_formats:
-        if duration > 15 * 60:
-            if f['vcodec'] == 'none':
-                return f
-        elif f['ext'] == 'mp4':
-            return f
-
-    return None
-
+        if media:
+            save_stats(message.from_user.id, url, media.title)
 
 async def download_media(url: str):
     temp_file_name = str(uuid.uuid4())
@@ -111,7 +78,7 @@ async def download_media(url: str):
     ydl_opts_video = {
         "outtmpl": f"{temp_file}.mp4",
         "noplaylist": True,
-        "format": "best[filesize_approx<=50M]/best[filesize<=50M]/wa",
+        "format": "best[filesize_approx<=50M][ext=mp4]/best[filesize<=50M][ext=mp4]/best[filesize_approx<=50M]/best[filesize<=50M]/wa",
         'writethumbnail': True,
     }
 

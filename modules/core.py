@@ -4,7 +4,7 @@ import yt_dlp
 from aiogram import types
 from modules.logger import logger
 from modules.mongo import save_error, save_stats
-from modules.utils import reply_video, reply_audio, reply_text, remove_files_containing, extract_first_url
+from modules.utils import reply_video, reply_audio, reply_text, remove_file_safe, extract_first_url
 from modules.config import (
     DOWNLOAD_STARTED,
     SUPPORTED_URLS,
@@ -62,13 +62,46 @@ async def process_message(message: types.Message):
 
     except Exception as e:
         await message.reply(f"Sorry, some error. {str(e)}")
-        save_error(message.from_user.id, url, str(e))
+        await save_error(message.from_user.id, url, str(e))
 
     finally:
-        media = media_title if media else ""
-        if file_name:
-            remove_files_containing(TEMP_DIR, file_name)
-        save_stats(message.from_user.id, url, media)
+        if file_path:
+            remove_file_safe(file_path)
+
+        if media:
+            await save_stats(message.from_user.id, url, media)
+
+
+def select_best_format(formats, duration):
+    # Filter formats by those less than 50 megabytes
+    filtered_formats = [
+        f for f in formats
+        if ('filesize' in f and f['filesize'] and f['filesize'] < 50 * 1024 * 1024)
+        or ('filesize_approx' in f and f['filesize_approx'] and f['filesize_approx'] < 50 * 1024 * 1024)
+    ]
+
+    filtered_formats = [
+        f for f in filtered_formats if f.get('acodec') != 'none']
+
+    filtered_formats = [
+        f for f in filtered_formats if f.get('ext') != 'webm']
+
+    # Sort filtered formats by filesize or filesize_approx if available
+    sorted_formats = sorted(
+        filtered_formats,
+        key=lambda x: x.get('filesize') or x.get(
+            'filesize_approx') or float('inf'),
+        reverse=True  # Sort in descending order
+    )
+    
+    for f in sorted_formats:
+        if duration > 15 * 60:
+            if f['vcodec'] == 'none':
+                return f
+        elif f['ext'] == 'mp4':
+            return f
+
+    return None
 
 
 def select_best_format(formats, duration):

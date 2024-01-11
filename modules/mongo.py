@@ -13,13 +13,16 @@ from modules.config import (
     ERROR_COLLECTION,
 )
 from aiogram import types
-mongo_client = MongoClient(MONGO_URL)
-mongo_db = mongo_client[MONGO_DB]
-stats_collection = mongo_db[STATS_COLLECTION]
-users_collection = mongo_db[USERS_COLLECTION]
-error_collection = mongo_db[ERROR_COLLECTION]
+from modules.utils import mongo_required
 
+if MONGO_URL:
+    mongo_client = MongoClient(MONGO_URL)
+    mongo_db = mongo_client[MONGO_DB]
+    stats_collection = mongo_db[STATS_COLLECTION]
+    users_collection = mongo_db[USERS_COLLECTION]
+    error_collection = mongo_db[ERROR_COLLECTION]
 
+@mongo_required
 def feed_stats():
     pipeline = [
         {"$sort": {"date": -1}},
@@ -53,7 +56,7 @@ def feed_stats():
 
     return f"{links_str}"
 
-    
+@mongo_required
 def user_stats():
     # Aggregation pipeline to handle usernames and IDs
     pipeline = [
@@ -92,7 +95,7 @@ def user_stats():
     formatted_usernames = "\n".join(usernames[:150])  # Get the first 100 unique usernames
     return f"```\n{formatted_usernames}\n```"
 
-
+@mongo_required
 def usage_stats():
     total_stats_documents = stats_collection.count_documents({})
     pipeline = [
@@ -134,7 +137,7 @@ def usage_stats():
     
     return f"```\n{formatted_usernames}\n```\nTotal usage: {total_stats_documents}"
 
-
+@mongo_required
 def save_user(user):
     existing_user = users_collection.find_one({"userObj.id": user.id})
 
@@ -144,7 +147,7 @@ def save_user(user):
     user_doc = {"date": datetime.now(), "userObj": dict(user)}
     users_collection.insert_one(user_doc)
 
-
+@mongo_required
 def save_stats(chat_id: int, video_url: str, data: str = ""):
     stats_doc = {
         "date": datetime.now(),
@@ -159,7 +162,7 @@ def save_stats(chat_id: int, video_url: str, data: str = ""):
     except Exception as e:
         logger.error(f"error_collection insert_one to MongoDB {str(e)}")
 
-
+@mongo_required
 def save_error(chat_id: int, video_url: str, data: str = ""):
     try:
         error_doc = {

@@ -6,7 +6,9 @@ from aiogram import types
 from functools import wraps
 from aiogram.types import FSInputFile
 from modules.config import ADMIN_USER_ID
-
+from modules.config import (
+    MONGO_URL,
+)
 
 async def reply_text(message: types.Message, message_text: str):
     await message.reply(message_text)
@@ -82,6 +84,18 @@ def admin_required(func):
             return
 
         return await func(message)
+
+    return wrapper
+
+
+def mongo_required(func):
+    @wraps(func)
+    async def wrapper(*args, **kwargs):
+        print(f'MONGO_URL {MONGO_URL}')
+        if not MONGO_URL:
+            return
+
+        return await func(*args, **kwargs)
 
     return wrapper
 

@@ -4,7 +4,7 @@ import yt_dlp
 from aiogram import types
 from modules.logger import logger
 from modules.mongo import save_error, save_stats
-from modules.utils import reply_video, reply_audio, reply_text, remove_files_containing, extract_first_url
+from modules.utils import reply_video, reply_audio, reply_text, remove_file_safe, extract_first_url
 from modules.config import (
     DOWNLOAD_STARTED,
     SUPPORTED_URLS,
@@ -62,13 +62,14 @@ async def process_message(message: types.Message):
 
     except Exception as e:
         await message.reply(f"Sorry, some error. {str(e)}")
-        save_error(message.from_user.id, url, str(e))
+        await save_error(message.from_user.id, url, str(e))
 
     finally:
-        media = media_title if media else ""
-        if file_name:
-            remove_files_containing(TEMP_DIR, file_name)
-        save_stats(message.from_user.id, url, media)
+        if file_path:
+            remove_file_safe(file_path)
+
+        if media:
+            await save_stats(message.from_user.id, url, media)
 
 
 def select_best_format(formats, duration):

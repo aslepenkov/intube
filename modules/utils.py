@@ -90,12 +90,11 @@ def admin_required(func):
 
 def mongo_required(func):
     @wraps(func)
-    async def wrapper(*args, **kwargs):
-        print(f'MONGO_URL {MONGO_URL}')
+    def wrapper(*args, **kwargs):
         if not MONGO_URL:
             return
 
-        return await func(*args, **kwargs)
+        return func(*args, **kwargs)
 
     return wrapper
 

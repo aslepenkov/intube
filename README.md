@@ -20,19 +20,25 @@ sudo systemctl start intube_bot.service
 sudo systemctl stop intube_bot.service
 ```
 
-### if just subprocess
+### to restart process
 ```
 ps -ef | grep intube
 kill <PID>
-ps -ef | grep "python app.py" | grep -v grep | awk '{print $2}' | xargs kill -9
-
+```
+or
+```
+ps -ef | grep intube | grep -v grep | awk '{print $2}' | xargs kill -9
+nohup ./script.sh &
+```
+then start:
+```
 nohup ./script.sh &
 ```
 
 ### logs
 ```
-cat /var/log/syslog | grep  intube
-tac /var/log/syslog | grep  intube
+cat /var/log/syslog | grep intube
+tac /var/log/syslog | grep intube
 ```
 
 ### concat to one file
@@ -40,7 +46,7 @@ tac /var/log/syslog | grep  intube
 cat * > logs.txt
 ```
 
-### mongo filter
+### mongo filter example
 ```
 {"user": {"$regex": "^id.*"}}
 ```
@@ -51,4 +57,6 @@ cat * > logs.txt
 - [x] download_media return object, not array
 - [x] link picking in message str 
 - [x] user friendly filename mp3 and cover
+- [x] fix err text mmsg without links
+- [ ] fix tiktok video
 

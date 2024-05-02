@@ -97,14 +97,15 @@ async def download_media(url: str):
 
         duration = info.get("duration", 0)
 
-        if duration / 60 < 15:
-            ydl_video.download([url])
-            is_audio = False
-            temp_file = f"{temp_file}.mp4"
-        else:
+        if "/audio" in url or (duration / 60) > 15:
             duration = info_audio.get("duration", 0)
             ydl_audio.download([url])
             is_audio = True
+        else:
+            ydl_video.download([url])
+            is_audio = False
+            temp_file = f"{temp_file}.mp4"
+            
 
     return DownloadedMedia(temp_file, info.get("title", "untitled"), is_audio, duration)
 

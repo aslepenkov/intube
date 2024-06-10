@@ -71,7 +71,9 @@ async def process_message(message: types.Message):
         if media:
             save_stats(message.from_user.id, url, media.title)
 
+
 async def download_media(url: str, force_audio: bool = False):
+
     temp_file_name = str(uuid.uuid4())
     temp_file = os.path.join(TEMP_DIR, temp_file_name)
     os.makedirs(TEMP_DIR, exist_ok=True)

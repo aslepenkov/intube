@@ -2,8 +2,10 @@
 
 ### to start app
 ```
+
 sudo docker build -t intube .
 sudo docker run -d --name intube intube
+
 ```
 
 ### logs
@@ -32,5 +34,3 @@ cat * > logs.txt
 - [x] fix tiktok video
 - [x] dockerize
 - [x] /audio in message = send as audio
-
-

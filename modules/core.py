@@ -29,6 +29,7 @@ class DownloadedMedia:
 
 
 async def process_message(message: types.Message):
+    force_audio = "/audio" in message.text
     url = extract_first_url(message.text)
 
     if not url or not any(url.startswith(prefix) for prefix in SUPPORTED_URLS):
@@ -45,7 +46,7 @@ async def process_message(message: types.Message):
             url = url.replace("instagram.com", "ddinstagram.com")
             await reply_text(message, url)
         else:
-            media = await download_media(url)
+            media = await download_media(url, force_audio)
 
             is_audio = media.is_audio
             file_path = media.file_name
@@ -70,7 +71,9 @@ async def process_message(message: types.Message):
         if media:
             save_stats(message.from_user.id, url, media.title)
 
-async def download_media(url: str):
+
+async def download_media(url: str, force_audio: bool = False):
+
     temp_file_name = str(uuid.uuid4())
     temp_file = os.path.join(TEMP_DIR, temp_file_name)
     os.makedirs(TEMP_DIR, exist_ok=True)
@@ -97,14 +100,15 @@ async def download_media(url: str):
 
         duration = info.get("duration", 0)
 
-        if duration / 60 < 15:
-            ydl_video.download([url])
-            is_audio = False
-            temp_file = f"{temp_file}.mp4"
-        else:
+        if force_audio or (duration / 60) > 15:
             duration = info_audio.get("duration", 0)
             ydl_audio.download([url])
             is_audio = True
+        else:
+            ydl_video.download([url])
+            is_audio = False
+            temp_file = f"{temp_file}.mp4"
+            
 
     return DownloadedMedia(temp_file, info.get("title", "untitled"), is_audio, duration)
 

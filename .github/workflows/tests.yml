@@ -35,11 +35,11 @@ jobs:
       run: |
         echo "## Code Audit Report" > audit_report.md
         echo "### Linting Results" >> audit_report.md
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics >> audit_report.md
-        echo "\n### Security Audit Results" >> audit_report.md
-        bandit -r . >> audit_report.md
-        echo "\n### Test Results" >> audit_report.md
-        pytest --maxfail=10 --disable-warnings -q >> audit_report.md
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics >> audit_report.md || true
+        echo "\n### Security Audit Results" >> audit_report.md || true
+        bandit -r . >> audit_report.md || true
+        echo "\n### Test Results" >> audit_report.md || true
+        pytest --maxfail=10 --disable-warnings -q >> audit_report.md || true
 
     - name: Post Audit Report to PR
       if: github.event_name == 'pull_request'

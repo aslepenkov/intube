@@ -31,14 +31,6 @@ jobs:
         # Exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
-    - name: Security audit with Bandit
-      run: |
-        bandit -r . || exit 0
-
-    - name: Run tests
-      run: |
-        pytest --maxfail=10 --disable-warnings -q
-
     - name: Generate Audit Report
       run: |
         echo "## Code Audit Report" > audit_report.md

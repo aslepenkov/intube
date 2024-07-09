@@ -31,9 +31,10 @@ class DownloadedMedia:
 async def process_message(message: types.Message):
     force_audio = "/audio" in message.text
     url = extract_first_url(message.text)
-
+    is_group_chat = message.chat.type in ['group', 'supergroup']
     if not url or not any(url.startswith(prefix) for prefix in SUPPORTED_URLS):
-        await message.reply(EX_VALID_LINK)
+        if not is_group_chat:
+            await message.reply(EX_VALID_LINK)
         return
 
     try:
@@ -61,7 +62,8 @@ async def process_message(message: types.Message):
                 await reply_video(message, file_path, media_height, media_width)
 
     except Exception as e:
-        await message.reply(f"Sorry, some error. {str(e)}")
+        if not is_group_chat:
+            await message.reply(f"Sorry, some error. {str(e)}")
         save_error(message.from_user.id, url, str(e))
 
     finally:

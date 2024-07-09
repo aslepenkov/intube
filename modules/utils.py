@@ -6,14 +6,19 @@ from aiogram import types
 from functools import wraps
 from aiogram.types import FSInputFile
 from modules.config import ADMIN_USER_ID
-
+from modules.config import (
+    MONGO_URL,
+)
 
 async def reply_text(message: types.Message, message_text: str):
     await message.reply(message_text)
 
 
-async def reply_video(message: types.Message, video_file: str):
-    await message.reply_video(FSInputFile(video_file))
+async def reply_video(message: types.Message, video_file_path: str, height: int, width: int):
+    if Path(video_file_path).is_file():
+        await message.reply_video(FSInputFile(f'{video_file_path}'),
+                                  height=height,
+                                  width=width)
 
 
 async def reply_photo(message: types.Message, file: str):
@@ -26,13 +31,15 @@ async def reply_audio(message: types.Message, audio_file: str, title: str, media
         'RGB').resize((840, 480))
     thumbnail.save(thumbnail_filename, 'jpeg')
 
-    await message.reply_audio(
-        audio=FSInputFile(audio_file),
-        caption=title,
-        duration=media_duration,
-        title=title,
-        thumbnail=FSInputFile(thumbnail_filename),
-    )
+    if Path(audio_file).is_file() and Path(thumbnail_filename).is_file():
+        await message.reply_audio(
+            audio=FSInputFile(audio_file),
+            caption=title,
+            duration=media_duration,
+            title=title,
+            thumbnail=FSInputFile(thumbnail_filename),
+            performer='@intube_bot'
+        )
 
 
 # deprecated
@@ -77,6 +84,17 @@ def admin_required(func):
             return
 
         return await func(message)
+
+    return wrapper
+
+
+def mongo_required(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if not MONGO_URL:
+            return
+
+        return func(*args, **kwargs)
 
     return wrapper
 

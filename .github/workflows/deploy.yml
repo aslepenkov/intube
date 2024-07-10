@@ -17,13 +17,11 @@ jobs:
       - name: Deploy Docker container to EC2
         env:
           IMAGE: ${{ github.repository }}-${{ github.ref_name }}
-          EC2_HOST: ${{ secrets.EC2_HOST }}
           SSH_KEY: ${{ secrets.SSH_KEY }}
-          USER_NAME: ${{ secrets.USER_NAME }}
           LOCATION: ${{ secrets.LOCATION }}
           REPO_DIR: "${{ secrets.LOCATION }}${{ github.repository }}-${{ github.ref_name }}"
         run: |
-          ssh -o StrictHostKeyChecking=no -i $SSH_KEY $USER_NAME@$EC2_HOST << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i -i ${{ secrets.SSH_PRIVATE_KEY }} ${{ secrets.USER_NAME }}@${{ secrets.EC2_HOST }} << 'EOF'
           if [ -d "$REPO_DIR" ]; then
               cd $REPO_DIR
               git pull origin ${{ github.ref_name }}

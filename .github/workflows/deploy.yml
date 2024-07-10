@@ -21,7 +21,7 @@ jobs:
           LOCATION: ${{ secrets.LOCATION }}
           REPO_DIR: "${{ secrets.LOCATION }}${{ github.repository }}-${{ github.ref_name }}"
         run: |
-          ssh -o StrictHostKeyChecking=no -i -i ${{ secrets.SSH_PRIVATE_KEY }} ${{ secrets.USER_NAME }}@${{ secrets.EC2_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY }} ${{ secrets.USER_NAME }}@${{ secrets.EC2_HOST }} << 'EOF'
           if [ -d "$REPO_DIR" ]; then
               cd $REPO_DIR
               git pull origin ${{ github.ref_name }}

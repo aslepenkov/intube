@@ -20,7 +20,7 @@ jobs:
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.KEY }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: whoami
 
 
@@ -42,8 +42,8 @@ jobs:
                 cd $LOCATION
                 git clone --branch ${{ github.ref_name }} https://github.com/${{ github.repository }} $REPO_DIR
             fi
-            docker rm -f $IMAGE || true
-            docker rmi -f $IMAGE || true
+            docker rm -f $IMAGE
+            docker rmi  $IMAGE
             docker build -t $IMAGE . 
             docker run -d --name $IMAGE $IMAGE 
             EOF

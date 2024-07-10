@@ -24,11 +24,11 @@ jobs:
             if [ -d "${{ secrets.LOCATION }}${{ github.event.repository.name }}-${{ github.ref_name }}" ]; then
                 cd "${{ secrets.LOCATION }}${{ github.event.repository.name }}-${{ github.ref_name }}"
                 git pull origin ${{ github.ref_name }}
+                docker rm -f ${{ github.event.repository.name }}-${{ github.ref_name }}
+                docker rmi  ${{ github.event.repository.name }}-${{ github.ref_name }}
             else
                 cd ${{ secrets.LOCATION }}
                 git clone --branch ${{ github.ref_name }} https://github.com/${{ github.repository }} "${{ secrets.LOCATION }}${{ github.event.repository.name }}-${{ github.ref_name }}"
             fi
-            docker rm -f ${{ github.event.repository.name }}-${{ github.ref_name }}
-            docker rmi  ${{ github.event.repository.name }}-${{ github.ref_name }}
             docker build -t ${{ github.event.repository.name }}-${{ github.ref_name }} "${{ secrets.LOCATION }}${{ github.event.repository.name }}-${{ github.ref_name }}" 
             docker run -d --name ${{ github.event.repository.name }}-${{ github.ref_name }} ${{ github.event.repository.name }}-${{ github.ref_name }}

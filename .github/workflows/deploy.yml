@@ -14,16 +14,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-
-      - name: executing remote ssh commands using ssh key
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: whoami
-
-
       - name: executing remote ssh commands
         uses: appleboy/ssh-action@v1.0.3
         env:
@@ -35,6 +25,8 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            cd $LOCATION
+            echo $REPO_DIR
             if [ -d "$REPO_DIR" ]; then
                 cd $REPO_DIR
                 git pull origin ${{ github.ref_name }}
@@ -46,4 +38,3 @@ jobs:
             docker rmi  $IMAGE
             docker build -t $IMAGE . 
             docker run -d --name $IMAGE $IMAGE 
-            EOF

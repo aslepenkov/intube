@@ -49,16 +49,12 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd $LOCATION
-            echo "${{ github.repository }}-${{ github.ref_name }}-AP" >> logs.txt
-            echo "${{ secrets.LOCATION }}" >> logs.txt
-            echo "$IMAGE" >> logs.txt
-            if [ -d "$REPO_DIR" ]; then
-                cd $REPO_DIR
-                #git pull origin ${{ github.ref_name }}
+            if [ -d "${{ secrets.LOCATION }}${{ github.repository }}-${{ github.ref_name }}" ]; then
+                cd "${{ secrets.LOCATION }}${{ github.repository }}-${{ github.ref_name }}"
+                git pull origin ${{ github.ref_name }}
             else
-                cd $LOCATION
-                #git clone --branch ${{ github.ref_name }} https://github.com/${{ github.repository }} $REPO_DIR
+                cd ${{ secrets.LOCATION }}
+                git clone --branch ${{ github.ref_name }} https://github.com/${{ github.repository }} "${{ secrets.LOCATION }}${{ github.repository }}-${{ github.ref_name }}"
             fi
             #docker rm -f $IMAGE
             #docker rmi  $IMAGE

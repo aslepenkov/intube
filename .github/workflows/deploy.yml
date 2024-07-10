@@ -26,8 +26,9 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd $LOCATION
-            echo $REPO_DIR
-            echo $IMAGE
+            echo $LOCATION >> logs.txt
+            echo $REPO_DIR >> logs.txt
+            echo $IMAGE >> logs.txt
             if [ -d "$REPO_DIR" ]; then
                 cd $REPO_DIR
                 #git pull origin ${{ github.ref_name }}

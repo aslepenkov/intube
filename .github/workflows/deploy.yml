@@ -14,10 +14,34 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+
+      - name: Deploy Docker container to EC2
+        env:
+          IMAGE: ${{ github.repository }}-${{ github.ref_name }}-TEST
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          LOCATION: ${{ secrets.LOCATION }}
+          REPO_DIR: "${{ secrets.LOCATION }}${{ github.repository }}-${{ github.ref_name }}"
+        run: |
+          ssh -o StrictHostKeyChecking=no -i $SSH_PRIVATE_KEY $SSH_USERNAME@$SSH_HOST << 'EOF'
+          if [ -d "$REPO_DIR" ]; then
+              cd $REPO_DIR
+              git pull origin ${{ github.ref_name }}
+          else
+              cd $LOCATION
+              git clone --branch ${{ github.ref_name }} https://github.com/${{ github.repository }} $REPO_DIR
+          fi
+          docker rm -f $IMAGE
+          docker rmi $IMAGE
+          docker build -t $IMAGE . 
+          docker run -d --name $IMAGE $IMAGE 
+          EOF
+
       - name: executing remote ssh commands
         uses: appleboy/ssh-action@v1.0.3
         env:
-          IMAGE: ${{ github.repository }}-${{ github.ref_name }}
+          IMAGE: ${{ github.repository }}-${{ github.ref_name }}-AP
           LOCATION: ${{ secrets.LOCATION }}
           REPO_DIR: "${{ secrets.LOCATION }}${{ github.repository }}-${{ github.ref_name }}"
         with:

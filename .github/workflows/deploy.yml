@@ -30,7 +30,7 @@ jobs:
                 git pull origin ${{ github.ref_name }}
             else
                 cd $LOCATION
-                git clone --branch ${{ github.ref_name }} https://github.com/${{ github.repository }}
+                git clone --branch ${{ github.ref_name }} https://github.com/${{ github.repository }} $REPO_DIR
             fi
             docker rm -f $IMAGE || true
             docker rmi -f $IMAGE || true

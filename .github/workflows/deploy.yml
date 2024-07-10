@@ -16,23 +16,19 @@ jobs:
 
       - name: executing remote ssh commands
         uses: appleboy/ssh-action@v1.0.3
-        env:
-          IMAGE: ${{ github.repository }}-${{ github.ref_name }}
-          LOCATION: ${{ secrets.LOCATION }}
-          REPO_DIR: "${{ secrets.LOCATION }}${{ github.repository }}-${{ github.ref_name }}"
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            if [ -d "${{ secrets.LOCATION }}${{ github.repository }}-${{ github.ref_name }}" ]; then
-                cd "${{ secrets.LOCATION }}${{ github.repository }}-${{ github.ref_name }}"
+            if [ -d "${{ secrets.LOCATION }}${{ github.event.repository.name }}-${{ github.ref_name }}" ]; then
+                cd "${{ secrets.LOCATION }}${{ github.event.repository.name }}-${{ github.ref_name }}"
                 git pull origin ${{ github.ref_name }}
             else
                 cd ${{ secrets.LOCATION }}
-                git clone --branch ${{ github.ref_name }} https://github.com/${{ github.repository }} "${{ secrets.LOCATION }}${{ github.repository }}-${{ github.ref_name }}"
+                git clone --branch ${{ github.ref_name }} https://github.com/${{ github.repository }} "${{ secrets.LOCATION }}${{ github.event.repository.name }}-${{ github.ref_name }}"
             fi
-            docker rm -f ${{ github.repository }}-${{ github.ref_name }}
-            docker rmi  ${{ github.repository }}-${{ github.ref_name }}
-            docker build -t ${{ github.repository }}-${{ github.ref_name }} . 
-            docker run -d --name ${{ github.repository }}-${{ github.ref_name }} ${{ github.repository }}-${{ github.ref_name }}
+            docker rm -f ${{ github.event.repository.name }}-${{ github.ref_name }}
+            docker rmi  ${{ github.event.repository.name }}-${{ github.ref_name }}
+            docker build -t ${{ github.event.repository.name }}-${{ github.ref_name }} . 
+            docker run -d --name ${{ github.event.repository.name }}-${{ github.ref_name }} ${{ github.event.repository.name }}-${{ github.ref_name }}

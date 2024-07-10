@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - dev
       
 jobs:
   deploy:
@@ -11,22 +12,26 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-      - name: Build and push Docker image
+
+      - name: Deploy Docker container to EC2
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: <your-aws-region>
-          ECS_CLUSTER_NAME: <your-ecs-cluster-name>
-          SERVICE_NAME: <your-service-name>
+          IMAGE: ${{ github.repository }}-${{ github.ref_name }}
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          USER_NAME: ${{ secrets.USER_NAME }}
+          LOCATION: ${{ secrets.LOCATION }}
+          REPO_DIR: "${{ secrets.LOCATION }}${{ github.repository }}-${{ github.ref_name }}"
         run: |
-          docker-compose build
-          docker-compose push
-      - name: Redeploy service
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: <your-aws-region>
-          ECS_CLUSTER_NAME: <your-ecs-cluster-name>
-          SERVICE_NAME: <your-service-name>
-        run: |
-          aws ecs update-service --cluster $ECS_CLUSTER_NAME --service $SERVICE_NAME --force-new-deployment
+          ssh -o StrictHostKeyChecking=no -i $SSH_KEY $USER_NAME@$EC2_HOST << 'EOF'
+          if [ -d "$REPO_DIR" ]; then
+              cd $REPO_DIR
+              git pull origin ${{ github.ref_name }}
+          else
+              cd $LOCATION
+              git clone --branch ${{ github.ref_name }} https://github.com/${{ github.repository }}
+          fi
+          docker rm -f $IMAGE || true
+          docker rmi -f $IMAGE || true
+          docker build -t $IMAGE . 
+          docker run -d --name $IMAGE $IMAGE 
+          EOF

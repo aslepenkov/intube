@@ -1,26 +1,6 @@
-# RUN YOUR OWN YT/INSTA/TT videos downloader or use intubebot in telegram
+# RUN YOUR OWN YT/INSTA/TT videos downloader
 
-### to start app
-```
-sudo docker build -t intube .
-sudo docker run -d --name intube intube
-```
-
-### logs
-```
-cat /var/log/syslog | grep intube
-tac /var/log/syslog | grep intube
-```
-
-### concat to one file
-```
-cat * > logs.txt
-```
-
-### mongo filter example
-```
-{"user": {"$regex": "^id.*"}}
-```
+## or use intubebot in telegram
 
 ### TODO
 
@@ -32,5 +12,7 @@ cat * > logs.txt
 - [x] fix tiktok video
 - [x] dockerize
 - [x] /audio in message = send as audio
-
-
+- [x] gh action to deploy docker
+- [x] mongoless
+- [ ] quialty up
+- [ ] refactor code

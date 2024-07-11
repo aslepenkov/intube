@@ -19,26 +19,6 @@ MONGO_DB = os.getenv("MONGO_DB", "")
 TEMP_DIR = "temp"
 MAX_SIZE_IN_MBYTES = int(os.getenv("MAX_SIZE_IN_MBYTES", 50))
 WORKERS_COUNT = int(os.getenv("WORKERS_COUNT", 2))
-SUPPORTED_URLS = [
-    "https://twitter.com/",
-    "https://instagram.com/",
-    "https://www.instagram.com/",
-    "https://vt.tiktok.com/",
-    "https://vm.tiktok.com/",
-    "https://www.tiktok.com/",
-    "https://youtu.be/",
-    "https://youtube.com/",
-    "https://www.youtube.com/",
-    "https://m.youtube.com/",
-    "twitter.com/",
-    "instagram.com/",
-    "youtu.be/",
-    "youtube.com/",
-    "www.youtube.com/",
-    "m.youtube.com/",
-    "https://www.reddit.com/",
-    "reddit.com/",
-]
 
 # Messages
 INSTAGRAM_NOT_SUPPORTED_MESSAGE = (

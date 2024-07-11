@@ -5,9 +5,8 @@ from pathlib import Path
 from aiogram import types
 from functools import wraps
 from aiogram.types import FSInputFile
-from modules.config import ADMIN_USER_ID
 from modules.config import (
-    MONGO_URL,
+    MONGO_URL, ADMIN_USER_ID
 )
 
 async def reply_text(message: types.Message, message_text: str):

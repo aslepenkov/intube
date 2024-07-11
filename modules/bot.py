@@ -8,7 +8,8 @@ from modules.mongo import save_user, feed_stats, usage_stats, user_stats
 from modules.logger import last_logs, last_logfile
 from modules.config import TOKEN, START_MESSAGE, WAIT_MESSAGE
 from modules.config import (
-    WORKERS_COUNT
+    WORKERS_COUNT,
+    ADMIN_USER_ID
 )
 from modules.utils import admin_required
 from aiogram.types import FSInputFile
@@ -23,6 +24,7 @@ processing_now = asyncio.Queue()
 async def bot_starter() -> None:
     # Initialize Bot instance with a default parse mode which will be passed to all API calls
     bot = Bot(TOKEN)
+    await bot.send_message(ADMIN_USER_ID, "intube alive")
     # And the run events dispatching
     await dp.start_polling(bot)
 

@@ -23,6 +23,7 @@ processing_now = asyncio.Queue()
 async def bot_starter() -> None:
     # Initialize Bot instance with a default parse mode which will be passed to all API calls
     bot = Bot(TOKEN)
+    await bot.sendMessage(ADMIN_USER_ID, "alive")
     # And the run events dispatching
     await dp.start_polling(bot)
 

@@ -7,7 +7,6 @@ from modules.mongo import save_error, save_stats
 from modules.utils import reply_video, reply_audio, reply_text, remove_file_safe, extract_first_url
 from modules.config import (
     DOWNLOAD_STARTED,
-    SUPPORTED_URLS,
     EX_VALID_LINK,
     TEMP_DIR
 )
@@ -32,9 +31,8 @@ async def process_message(message: types.Message):
     force_audio = "/audio" in message.text
     url = extract_first_url(message.text)
     is_group_chat = message.chat.type in ['group', 'supergroup']
-    if not url or not any(url.startswith(prefix) for prefix in SUPPORTED_URLS):
-        if not is_group_chat:
-            await message.reply(EX_VALID_LINK)
+    if not url and not is_group_chat:
+        await message.reply(EX_VALID_LINK)
         return
 
     try:

@@ -8,7 +8,8 @@ from modules.mongo import save_user, feed_stats, usage_stats, user_stats
 from modules.logger import last_logs, last_logfile
 from modules.config import TOKEN, START_MESSAGE, WAIT_MESSAGE
 from modules.config import (
-    WORKERS_COUNT
+    WORKERS_COUNT,
+    ADMIN_USER_ID
 )
 from modules.utils import admin_required
 from aiogram.types import FSInputFile

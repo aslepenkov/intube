@@ -1,6 +1,6 @@
-aiogram
-instaloader
-python-dotenv
-yt-dlp
-Pillow
-pymongo
+aiogram==3.10.0
+instaloader==4.12
+pillow==10.4.0
+python-dotenv==1.0.1
+pymongo==4.8.0
+yt-dlp==2024.7.9

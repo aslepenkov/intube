@@ -32,3 +32,4 @@ jobs:
             fi
             docker build -t ${{ github.event.repository.name }}-${{ github.ref_name }} "${{ secrets.LOCATION }}${{ github.event.repository.name }}-${{ github.ref_name }}" 
             docker run -d -v ${{ secrets.LOCATION }}${{ github.event.repository.name }}-${{ github.ref_name }}:/app --name ${{ github.event.repository.name }}-${{ github.ref_name }} ${{ github.event.repository.name }}-${{ github.ref_name }}
+            

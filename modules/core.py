@@ -79,7 +79,6 @@ async def download_media(url: str, force_audio: bool = False):
     ydl_opts_video = {
         "outtmpl": f"{temp_file}.mp4",
         "noplaylist": True,
-        "format": "best[filesize<=50M]/best[filesize_approx<=50M]",
         'writethumbnail': True,
     }
 

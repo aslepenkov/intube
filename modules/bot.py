@@ -5,7 +5,7 @@ from aiogram import Dispatcher, Bot, types, Router
 from aiogram.filters import Command, CommandStart
 from modules.core import process_message
 from modules.mongo import save_user, feed_stats, usage_stats, user_stats
-from modules.logger import last_logs, last_logfile
+from modules.logger import last_logs, last_logfile, logger
 from modules.config import TOKEN, START_MESSAGE, WAIT_MESSAGE
 from modules.config import (
     WORKERS_COUNT,
@@ -80,18 +80,26 @@ async def log(message: types.Message):
 
 
 # handle all text messages
-@dp.message()
 @router.message(F.content_type.in_({'text'}))
 async def handle_message(message: types.Message):
     await message_queue.put(message)
 
     if processing_now.qsize() < WORKERS_COUNT:
-        while not message_queue.empty():
-            msg = await message_queue.get()
-
-            await processing_now.put(msg)
-            await process_message(msg)
-            await processing_now.get()
+        await process_queue()
     else:
         queue_size = message_queue.qsize() + WORKERS_COUNT
         await message.reply(WAIT_MESSAGE.format(queue_size))
+
+
+async def process_queue():
+    while not message_queue.empty() and processing_now.qsize() < WORKERS_COUNT:
+        msg = await message_queue.get()
+        await processing_now.put(msg)
+
+        try:
+            await process_message(msg)
+        except Exception as e:
+            # Log the exception or handle it accordingly
+            logger.error(f"Error processing message: {e}")
+        finally:
+            await processing_now.get()

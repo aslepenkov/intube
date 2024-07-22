@@ -116,3 +116,6 @@ def extract_first_url(message):
         return match.group(1)  # Return the first URL found
     else:
         return None
+
+def remove_extension(file_name: str) -> str:
+    return file_name.rsplit('.', 1)[0]

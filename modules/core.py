@@ -4,7 +4,14 @@ import yt_dlp
 from aiogram import types
 from modules.logger import logger
 from modules.mongo import save_error, save_stats
-from modules.utils import reply_video, reply_audio, reply_text, remove_file_safe, extract_first_url
+from modules.utils import (
+    reply_video, 
+    reply_audio,
+    reply_text, 
+    remove_file_safe, 
+    extract_first_url,
+    remove_extension
+)
 from modules.config import (
     DOWNLOAD_STARTED,
     EX_VALID_LINK,
@@ -77,7 +84,8 @@ async def download_media(url: str, force_audio: bool = False):
     os.makedirs(TEMP_DIR, exist_ok=True)
 
     ydl_opts_video = {
-        "outtmpl": f"{temp_file}.mp4",
+        "outtmpl": f"{temp_file}",
+        "format": "best[filesize_approx<=50M]/best[filesize<=50M]",
         "noplaylist": True,
         'writethumbnail': True,
     }
@@ -104,42 +112,6 @@ async def download_media(url: str, force_audio: bool = False):
         else:
             ydl_video.download([url])
             is_audio = False
-            temp_file = f"{temp_file}.mp4"
-            
+            temp_file = f"{temp_file}"
 
-    return DownloadedMedia(temp_file, info.get("title", "untitled"), is_audio, duration)
-
-
-async def get_videos(message: types.Message):
-    # return
-    history_start = '20231201'
-    history_end = '20231231'
-
-    link = message.text
-    response = ""
-    ydl_opts = {
-        'quiet': False,
-        'daterange': DateRange(history_start, history_end),
-        'skip_download': True,
-        'playlist_end': 10  # Set playlist_end to limit fetched items
-    }
-    try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(link, download=False)
-
-            if 'entries' in info:
-                videos = info['entries'][:10]
-                response += f"Videos from {info['uploader']}:\n\n"
-                for video in videos:
-                    title = video['title']
-                    url = video['webpage_url']
-                    response += f"[{title}]({url})\n"
-                    response += "\n"
-            else:
-                response += f"No videos found for {link}.\n\n"
-
-        if response:
-            await message.reply(response, parse_mode='Markdown')
-
-    except Exception as e:
-        await message.reply("Sorry, something went wrong. Please try again later.")
+    return DownloadedMedia(remove_extension(temp_file), info.get("title", "untitled"), is_audio, duration)

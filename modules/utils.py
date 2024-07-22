@@ -27,7 +27,7 @@ async def reply_photo(message: types.Message, file: str):
 async def reply_audio(message: types.Message, audio_file: str, title: str, media_duration: int):
     thumbnail_filename = f'{audio_file}.jpg'
     media_filename = f'{audio_file}.webp'
-    if Path(file).is_file():
+    if Path(media_filename).is_file():
         thumbnail = Image.open(media_filename).convert(
             'RGB').resize((840, 480))
         thumbnail.save(thumbnail_filename, 'jpeg')

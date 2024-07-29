@@ -103,7 +103,7 @@ async def download_media(url: str, message, force_audio: bool = False):
             url, download=False)
 
         duration = info.get("duration", 0)
-        await message.reply("duration " + duration)
+        await message.reply("duration ")
 
         if force_audio or (duration / 60) > 10:
             duration = info_audio.get("duration", 0)

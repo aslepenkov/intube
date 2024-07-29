@@ -52,7 +52,7 @@ async def process_message(message: types.Message):
             url = url.replace("instagram.com", "ddinstagram.com")
             await reply_text(message, url)
         else:
-            media = await download_media(url, force_audio)
+            media = await download_media(url, message, force_audio)
 
             is_audio = media.is_audio
             file_path = media.file_name
@@ -78,7 +78,7 @@ async def process_message(message: types.Message):
         if media:
             save_stats(message.from_user.id, url, media.title)
 
-async def download_media(url: str, force_audio: bool = False):
+async def download_media(url: str, message, force_audio: bool = False):
     temp_file_name = str(uuid.uuid4())
     temp_file = os.path.join(TEMP_DIR, temp_file_name)
     os.makedirs(TEMP_DIR, exist_ok=True)

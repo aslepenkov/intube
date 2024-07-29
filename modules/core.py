@@ -104,9 +104,9 @@ async def download_media(url: str, force_audio: bool = False):
 
         duration = info.get("duration", 0)
 
-        if force_audio or (duration / 60) > 15:
+        if force_audio or (duration / 60) > 10:
             duration = info_audio.get("duration", 0)
-            ydl_audio.download([url])
+            await ydl_audio.download([url])
             is_audio = True
             temp_file = f"{temp_file}.mp4"
         else:

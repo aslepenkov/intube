@@ -108,9 +108,10 @@ async def download_media(url: str, force_audio: bool = False):
             duration = info_audio.get("duration", 0)
             ydl_audio.download([url])
             is_audio = True
+            temp_file = f"{temp_file}.mp4"
         else:
             ydl_video.download([url])
             is_audio = False
-            temp_file = f"{temp_file}"
+            temp_file = remove_extension(temp_file)
 
-    return DownloadedMedia(remove_extension(temp_file), info.get("title", "untitled"), is_audio, duration)
+    return DownloadedMedia(temp_file, info.get("title", "untitled"), is_audio, duration)

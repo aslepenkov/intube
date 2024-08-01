@@ -84,15 +84,16 @@ async def download_media(url: str, message, force_audio: bool = False):
     os.makedirs(TEMP_DIR, exist_ok=True)
 
     ydl_opts_video = {
+        "format": "bestvideo[height<=720]+bestaudio/best[height<=720]",
         "outtmpl": f"{temp_file}",
         "noplaylist": True,
         'writethumbnail': True,
     }
 
     ydl_opts_audio = {
+        "format": "bestaudio[filesize_approx<=50M]/bestaudio[filesize<=50M]",
         "outtmpl": f"{temp_file}",
         "noplaylist": True,
-        "format": "bestaudio[filesize_approx<=50M]/bestaudio[filesize<=50M]",
         'writethumbnail': True,
     }
     

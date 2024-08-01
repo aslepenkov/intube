@@ -95,6 +95,7 @@ async def download_media(url: str, message, force_audio: bool = False):
         "format": "bestaudio[filesize_approx<=50M]/bestaudio[filesize<=50M]",
         'writethumbnail': True,
     }
+    
     with yt_dlp.YoutubeDL(ydl_opts_video) as ydl_video, yt_dlp.YoutubeDL(ydl_opts_audio) as ydl_audio:
         info = ydl_video.extract_info(
             url, download=False)

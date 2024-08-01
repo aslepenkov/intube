@@ -26,9 +26,11 @@ async def reply_photo(message: types.Message, file: str):
 
 async def reply_audio(message: types.Message, audio_file: str, title: str, media_duration: int):
     thumbnail_filename = f'{audio_file}.jpg'
-    thumbnail = Image.open(f'{audio_file}.webp').convert(
-        'RGB').resize((840, 480))
-    thumbnail.save(thumbnail_filename, 'jpeg')
+    media_filename = f'{audio_file}.webp'
+    if Path(media_filename).is_file():
+        thumbnail = Image.open(media_filename).convert(
+            'RGB').resize((840, 480))
+        thumbnail.save(thumbnail_filename, 'jpeg')
 
     if Path(audio_file).is_file() and Path(thumbnail_filename).is_file():
         await message.reply_audio(
@@ -116,3 +118,6 @@ def extract_first_url(message):
         return match.group(1)  # Return the first URL found
     else:
         return None
+
+def remove_extension(file_name: str) -> str:
+    return file_name.rsplit('.', 1)[0]

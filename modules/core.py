@@ -95,7 +95,6 @@ async def download_media(url: str, message, force_audio: bool = False):
         "format": "bestaudio[filesize_approx<=50M]/bestaudio[filesize<=50M]",
         'writethumbnail': True,
     }
-    await message.reply("ydl_opts_video")
     with yt_dlp.YoutubeDL(ydl_opts_video) as ydl_video, yt_dlp.YoutubeDL(ydl_opts_audio) as ydl_audio:
         info = ydl_video.extract_info(
             url, download=False)
@@ -103,17 +102,15 @@ async def download_media(url: str, message, force_audio: bool = False):
             url, download=False)
 
         duration = info.get("duration", 0)
-        await message.reply("duration ")
 
         if force_audio or (duration / 60) > 10:
             duration = info_audio.get("duration", 0)
-            await ydl_audio.download([url])
+            ydl_audio.download([url])
             is_audio = True
             temp_file = remove_extension(temp_file)
         else:
             ydl_video.download([url])
             is_audio = False
             temp_file = f"{temp_file}.mp4"
-            
-    await message.reply("temp_file " + temp_file)
+
     return DownloadedMedia(temp_file, info.get("title", "untitled"), is_audio, duration)

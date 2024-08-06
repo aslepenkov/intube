@@ -86,6 +86,8 @@ async def download_media(url: str, message, force_audio: bool = False):
 
     ydl_opts_shorts = {
         "outtmpl": f"{temp_file}",
+        #"format": "bestvideo[height<=720]+bestaudio/best[height<=720]",
+        "format": "bestvideo[ext=mp4][height<=720]+bestaudio[ext=m4a]/best",
         "noplaylist": True,
         "writethumbnail": True,
     }
@@ -115,7 +117,6 @@ async def download_media(url: str, message, force_audio: bool = False):
         height = info.get("height", 0)
 
         # Determine if the video is a YouTube Short
-
         is_short = duration < 60 and width < height
 
         if force_audio or (duration / 60) > 10:

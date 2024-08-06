@@ -133,7 +133,7 @@ async def download_media(url: str, message, force_audio: bool = False):
                 "-c:v", "libx264", "-c:a", "aac",
                 "-strict", "experimental", f"coded_{temp_file}"
             ])
-            return DownloadedMedia(f"coded_{temp_file}", info.get("title", "untitled"), false, duration)
+            return DownloadedMedia(f"coded_{temp_file}", info.get("title", "untitled"), False, duration)
         else:
             ydl_video.download([url])
             is_audio = False

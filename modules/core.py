@@ -15,7 +15,7 @@ from modules.utils import (
 from modules.config import DOWNLOAD_STARTED, EX_VALID_LINK, TEMP_DIR
 from yt_dlp.utils import DateRange
 import json
-
+import subprocess
 
 class DownloadedMedia:
     def __init__(
@@ -87,7 +87,7 @@ async def download_media(url: str, message, force_audio: bool = False):
     ydl_opts_shorts = {
         "outtmpl": f"{temp_file}",
         #"format": "bestvideo[height<=720]+bestaudio/best[height<=720]",
-        "format": "bestvideo[ext=mp4]+bestaudio/best",
+        #"format": "bestvideo[ext=mp4]+bestaudio/best",
         "noplaylist": True,
         "writethumbnail": True,
     }
@@ -128,8 +128,15 @@ async def download_media(url: str, message, force_audio: bool = False):
             ydl_short.download([url])
             is_audio = False
             temp_file = f"{temp_file}.mp4"
+            subprocess.run([
+                "ffmpeg", "-i", temp_file,
+                "-c:v", "libx264", "-c:a", "aac",
+                "-strict", "experimental", f"coded_{temp_file}"
+            ])
+            return DownloadedMedia(f"coded_{temp_file}", info.get("title", "untitled"), false, duration)
         else:
             ydl_video.download([url])
             is_audio = False
             temp_file = f"{temp_file}.mp4"
-    return DownloadedMedia(temp_file, info.get("title", "untitled"), is_audio, duration)
+
+    return DownloadedMedia(f"{temp_file}", info.get("title", "untitled"), is_audio, duration)

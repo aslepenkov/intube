@@ -87,7 +87,7 @@ async def download_media(url: str, message, force_audio: bool = False):
     ydl_opts_shorts = {
         "outtmpl": f"{temp_file}",
         #"format": "bestvideo[height<=720]+bestaudio/best[height<=720]",
-        "format": "bestvideo[ext=mp4][height<=720]+bestaudio[ext=m4a]/best",
+        "format": "bestvideo[ext=mp4]+bestaudio/best",
         "noplaylist": True,
         "writethumbnail": True,
     }
